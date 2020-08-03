@@ -16,5 +16,8 @@
     </select>
     <select id="select" resultType="UserDomain">
     SELECT * FROM user_info
-  </select>
+    </select>
+    <update id="updatePassword" parameterType="Map">
+        update user_info set passwd=#{password} where user_id = #{userId}
+    </update>
 </mapper>

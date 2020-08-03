@@ -1,5 +1,6 @@
 package com.player.es.Domain;
 
+import cn.hutool.core.date.DateTime;
 import lombok.Data;
 
 import java.util.Date;
@@ -13,5 +14,5 @@ public class NoticeDomain {
     String awayId;      // 相关客队ID
     String title;       // 标题
     String content;     // 内容
-    Date date;          // 发布日期
+    Date noticeDate;          // 发布日期
 }

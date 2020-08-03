@@ -15,13 +15,12 @@ import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class UserController {
@@ -51,18 +50,43 @@ public class UserController {
                     .map()
             );
     }
-        @RequiresAuthentication
-        @GetMapping("/index")
-        public ResponseUnit index () {
-            try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+    @RequiresAuthentication
+    @GetMapping("/index")
+    public ResponseUnit index () {
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
 
-                UserDao userDao = sqlSession.getMapper(UserDao.class);
-                List<UserDomain> test = userDao.select();
-                UserDomain user = test.get(0);
-                user.setUserName("你好");
-                return ResponseUnit.succ(user);
-            }
+            UserDao userDao = sqlSession.getMapper(UserDao.class);
+            List<UserDomain> test = userDao.select();
+            UserDomain user = test.get(0);
+            user.setUserName("你好");
+            return ResponseUnit.succ(user);
         }
+    }
+//  -------------------------------------------接口1：我的信息获取---------------------------------------
+    @RequestMapping("/user/info")
+    public ResponseUnit myInformation(@RequestBody Map<String,String> map){
+        UserDomain user = userService.getByUserID(map.get("userId"));
+//        System.out.println(userId);
+        Map information = new HashMap();
+        information.put("role", user.getRole());
+        information.put("id",user.getUserID());
+        information.put("email",user.getEmail());
+        information.put("username",user.getUserName());
+        return ResponseUnit.succ(information);
+    }
+//  -------------------------------------------接口1：我的信息获取---------------------------------------
+//-------------------------------------------接口2：修改密码---------------------------------------
+    @RequestMapping("/user/password")
+    public ResponseUnit password_change(@RequestBody Map<String,String> map){
+        boolean work = userService.passwordChange(map.get("userId"),map.get("password"),map.get("newPasswd"));
+        if(work){
+            return ResponseUnit.succ("");
+        }
+        else
+            return ResponseUnit.fail("原密码不正确");
+    }
+//-------------------------------------------接口2：修改密码---------------------------------------
+
     @GetMapping("/test")
     public ResponseUnit test () {
         return ResponseUnit.succ( MapUtil.builder()
