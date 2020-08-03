@@ -63,5 +63,12 @@ public class UserController {
                 return ResponseUnit.succ(user);
             }
         }
-
+    @GetMapping("/test")
+    public ResponseUnit test () {
+        return ResponseUnit.succ( MapUtil.builder()
+                        .put("id", userService.test())
+                        .put("user",userService.test())
+                        .map()
+                   );
+    }
 }

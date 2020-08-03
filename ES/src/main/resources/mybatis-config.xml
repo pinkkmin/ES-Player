@@ -40,5 +40,11 @@
 
     <mappers>
         <mapper resource="mapper/UserMapper.xml"/>
+        <mapper resource="mapper/TeamMapper.xml"/>
+        <mapper resource="mapper/PlayerMapper.xml"/>
+        <mapper resource="mapper/MatchMapper.xml"/>
+        <mapper resource="mapper/ServiceMapper.xml"/>
+        <mapper resource="mapper/MatchDataMapper.xml"/>
+        <mapper resource="mapper/NoticeMapper.xml"/>
     </mappers>
 </configuration>

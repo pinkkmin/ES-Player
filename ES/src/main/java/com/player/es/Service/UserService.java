@@ -3,10 +3,7 @@ package com.player.es.Service;
 import com.player.es.Config.MybatisConfig;
 import com.player.es.Dao.UserDao;
 import com.player.es.Domain.UserDomain;
-import com.player.es.Utils.ResponseUnit;
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.session.SqlSession;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,6 +28,12 @@ public class UserService {
         try(SqlSession sqlSession = MybatisConfig.getSqlSession()) {
             UserDao userDao = sqlSession.getMapper(UserDao.class);
             return userDao.getByUserName(userName);
+        }
+    }
+    public List<UserDomain> test() {
+        try(SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            UserDao userDao = sqlSession.getMapper(UserDao.class);
+            return userDao.select();
         }
     }
 }

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--绑定一个DAO接口-->
+<mapper namespace="com.player.es.Dao.MatchDao">
+<select id="test" resultType="MatchDomain">
+    SELECT *
+    FROM match_,match_data
+    where match_.id = match_data.id
+</select>
+</mapper>
