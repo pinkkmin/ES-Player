@@ -1,7 +1,8 @@
 package com.player.es.Controller;
-
+/**
+ * @2020/8/4 修改返回jwt
+ * */
 import cn.hutool.core.map.MapUtil;
-import cn.hutool.crypto.SecureUtil;
 import com.player.es.Config.MybatisConfig;
 import com.player.es.Dao.UserDao;
 import com.player.es.Domain.LoginDto;
@@ -9,6 +10,7 @@ import com.player.es.Domain.UserDomain;
 import com.player.es.Service.UserService;
 import com.player.es.Utils.JwtUtils;
 import com.player.es.Utils.ResponseUnit;
+import org.apache.commons.collections.map.HashedMap;
 import org.apache.ibatis.session.SqlSession;
 
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
@@ -37,18 +39,17 @@ public class UserController {
         if(!user.getPasswd().equals(loginDto.getPassword())){
             return ResponseUnit.fail("用户名或密码不正确");
         }
-            /*密码校验---->成功----->生成jwt*/
-            String jwt = jwtUtils.generateToken(user.getUserID());
-            response.setHeader("Authorization", jwt);
-            response.setHeader("Access-control-Expose-Headers", "Authorization");
-
-            return ResponseUnit.succ(MapUtil.builder()
-                    .put("id", user.getUserID())
-                    .put("username", user.getUserName())
-                    .put("role", user.getRole())
-                    .put("email", user.getEmail())
-                    .map()
-            );
+        /*密码校验---->成功----->生成jwt*/
+        String jwt = jwtUtils.generateToken(user.getUserID());
+        response.setHeader("Authorization", jwt);
+        response.setHeader("Access-control-Expose-Headers", "Authorization");
+        Map test = new HashedMap() ;
+        test.put("Authorization", jwt);
+        test.put("id", user.getUserID());
+        test.put("username", user.getUserName());
+        test.put("role", user.getRole());
+        test.put("email", user.getEmail());
+        return ResponseUnit.succ(test);
     }
     @RequiresAuthentication
     @GetMapping("/index")

@@ -4,7 +4,10 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!--绑定一个DAO接口-->
 <mapper namespace="com.player.es.Dao.TeamDao">
-<select id="test" resultType="TeamDomain">
-    select  * from team
-</select>
+    <select id="test" resultType="TeamDomain">
+      select  * from team
+    </select>
+    <select id="getTeamList" resultType="map">
+      select  team_id teamId, team_name teamName from team
+    </select>
 </mapper>

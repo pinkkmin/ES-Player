@@ -8,4 +8,7 @@ public class TeamDomain {
     String teamName;    // 球队名称
     String teamCity;    // 所在城市
     String teamCoach;   // 教练
+    String teamHome;   // 主场
+    String teamClub;
+
 }
