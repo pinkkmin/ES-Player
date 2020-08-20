@@ -8,4 +8,6 @@ import java.util.Map;
 public interface TeamDao {
     List<TeamDomain> test();
     List<Map> getTeamList();
+    TeamDomain getTeamInfo(String teamId);
+    int getTeamCount();
 }

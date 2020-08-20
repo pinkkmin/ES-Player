@@ -10,4 +10,11 @@
     <select id="getTeamList" resultType="map">
       select  team_id teamId, team_name teamName from team
     </select>
+    <select id="getTeamInfo" parameterType="String" resultType="TeamDomain">
+        select * from team
+        where team_id = #{teamId}
+    </select>
+    <select id="getTeamCount" resultType="int">
+        select count(*) from team
+    </select>
 </mapper>

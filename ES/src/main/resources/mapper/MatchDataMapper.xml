@@ -7,4 +7,35 @@
 <select id="test" resultType="MatchDataDomain">
     select * from  match_data
 </select>
+    <select id="initMatchDataList" parameterType="MatchDataDomain">
+        INSERT INTO match_data(match_id, player_id,is_home,score,bound,assist,match_time,block,steal,foul,turnover,free)
+        VALUES (#{matchId},#{playerId},#{isHome},#{score},#{bound},#{assist},#{matchTime},#{block},#{steal},#{foul},#{turnOver},#{free})
+    </select>
+    <!-- 球队-各项总和-->
+    <select id="getTeamSum" parameterType="String" resultType="Map">
+        select team_id,team_name,sum(score) score ,sum(bound) bound, sum(assist) assist,
+        sum(block) block,sum(steal) steal, sum(foul) foul,sum(free) free,sum(turnover) turnover
+        from team,match_,match_data
+        where team_id = #{teamId} AND match_season = #{season} AND match_.match_id = match_data.match_id AND( #{teamId} = match_home OR match_away = #{teamId})
+    </select>
+    <select id="getAllTeamSum" parameterType="String" resultType="Map">
+        select sum(score) score ,sum(bound) bound, sum(assist) assist,
+        sum(block) block,sum(steal) steal, sum(foul) foul,sum(free) free,sum(turnover) turnover
+        from match_data,match_
+        where match_data.match_id = match_.match_id AND match_season = #{season} AND match_status = 1
+    </select>
+    <!-- 获取球队赛事各项总和 -->
+    <select id="getSeasonSum" parameterType="String" resultType="map">
+        select team_id,sum(score) score ,sum(bound) bound, sum(assist) assist,
+        sum(block) block,sum(steal) steal, sum(foul) foul,sum(free) free,sum(turnover) turnover
+        from team, match_,match_data
+        where match_season = #{season} AND match_.match_id = match_data.match_id AND( team_id = match_home OR match_away = team_id)
+        group by team_id order by team_id
+    </select>
+    <!--球员-各项数据最高 -->
+    <select id="getMaxItemOfPlayer" parameterType="String" resultType="map">
+        select max(score)score ,max(assist)assist,max(bound)bound,max(block)block,max(steal)steal
+        from match_,match_data
+        where match_.match_id = match_data.match_id AND match_season = #{season}
+    </select>
 </mapper>

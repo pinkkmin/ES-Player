@@ -18,4 +18,18 @@ public class MatchDomain {
     int matchStatus;    // 比赛状态 已结束/未进行
     int homeScore;      // 主队的得分
     int awayScore;      // 客队得分
+    public  MatchDomain() {
+
+    }
+    public MatchDomain(String id, String home, String away, String season, Date date, int status, int homeScore, int awayScore){
+        this.awayScore = awayScore;
+        this.homeScore = homeScore;
+        this.matchDate = date;
+        this.matchAway = away;
+        this.matchHome = home;
+        this.matchStatus = status;
+        this.matchId = id;
+        this.matchSeason = season;
+    }
+
 }

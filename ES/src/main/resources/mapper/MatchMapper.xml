@@ -9,4 +9,38 @@
     FROM match_,match_data
     where match_.id = match_data.id
 </select>
+    <select id="initMatchList" parameterType="MatchDomain">
+    INSERT
+    INTO match_(match_id,match_date,match_season,match_status,home_score,away_score,match_home,match_away)
+    VALUES(#{matchId},#{matchDate},#{matchSeason},#{matchStatus},#{homeScore},#{awayScore},#{matchHome},#{matchAway})
+</select>
+    <select id="isExist" parameterType="String" resultType="Boolean">
+        SELECT * from match_
+        WHERE match_id = #{matchId}
+    </select>
+    <select id="getAllTeamSort" parameterType="String" resultType="map">
+        SELECT team_id teamId,team_name teamName ,(@i:=@i+1) rand ,win,fail, 100*Win/(Win+Fail) sort from
+        (SELECT @i:=0) as i,
+        (SELECT team_id,team_name,
+        (SELECT COUNT(*) FROM match_ where match_season = #{season} AND match_status= 1 AND ((match_home = team_id AND home_score > away_score) or (match_away = team_id AND away_score > home_score))) win,
+        (SELECT COUNT(*) FROM match_ where match_season =  #{season} AND match_status= 1 AND ((match_home = team_id AND away_score > home_score ) or (match_away = team_id AND home_score > away_score ))) fail
+        from team
+        group by team_id) AS SORT order by sort desc;
+    </select>
+    <!-- 球队-赛季-已结束-场次 -->
+    <select id="getTeamGameCount" parameterType="String" resultType="int">
+        select count(*) from match_
+        where match_season = #{season} AND match_status = 1 AND (match_home = #{teamId} OR match_away = #{teamId})
+    </select>
+    <!-- 获取 所有球队-已结束-比赛场次-->
+    <select id="getGameCount" parameterType="String" resultType="Map">
+        select team_id,count(*) game
+        from team,match_
+        where match_season = #{season} AND match_status = 1 AND (match_home = team_id OR match_away = team_id)
+        group by team_id order by team_id
+    </select>
+    <select id="getMatchCount" parameterType="String" resultType="int">
+        select count(*) from match_
+        where match_status = 1 AND match_season = #{season};
+    </select>
 </mapper>
