@@ -9,6 +9,7 @@ public class PlayerDomain {
     String playerId;    //球员ID
     String teamId;
     String playerName;
+    int playerNumber;
     Date   playerBirth;
     String playerHeight;
     String playerWeight;

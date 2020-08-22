@@ -17,4 +17,25 @@
     <select id="getTeamCount" resultType="int">
         select count(*) from team
     </select>
+    <!-- 某队-所有球员-某赛季-场均数据-得分-助攻-抢断-盖帽-篮板 -->
+    <select id="getPlayerAvgData" parameterType="String" resultType="HashMap">
+        select player.player_id playerId,player_name name, player_position position, player_number number,
+        ROUND(AVG(score),1) score,ROUND(AVG(bound),1) bound,ROUND(AVG(assist),1) assist,
+        ROUND(AVG(block),1) block,ROUND(AVG(steal),1) steal
+        from player,match_data,match_
+        where  match_.match_id = match_data.match_id AND match_data.player_id = player.player_id
+        AND match_season = #{season}  AND team_id = #{teamId}
+        group by player.player_id;
+    </select>
+<!--某队-赛季-所有赛事-->
+    <select id="getTeamSeasonMatchList" parameterType="String" resultType="MatchPojo">
+        select match_id matchId,match_date date, match_home homeId,match_away awayId,
+        home.team_name homeName, away.team_name awayName,home_score homeScore,
+        away_score awayScore,match_status status
+        from  match_, team home, team away
+        where match_season = #{season}
+        AND (home.team_id = match_home and away.team_id = match_away)
+        AND (match_home = #{teamId} OR match_away = #{teamId})
+        order by match_date;
+    </select>
 </mapper>

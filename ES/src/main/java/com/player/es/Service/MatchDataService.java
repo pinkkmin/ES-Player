@@ -21,30 +21,30 @@ public class MatchDataService {
         }
     }
     // 获取radar雷达图数据
-    public Map getRadarData(String teamId, String season) {
-        Map data = new HashMap();
-        Map maxData = getMaxItemOfTeam(season);
+    public LinkedHashMap getRadarData(String teamId, String season) {
+        LinkedHashMap data = new LinkedHashMap();
+        LinkedHashMap maxData = getMaxItemOfTeam(season);
         maxData.remove("maxFoul");
         maxData.remove("maxTurnOver");
         data.put("maxData",maxData);
         data.put("data",getAvgItemOfTeam(teamId,season));
         return data;
     }
-    public Map getBarData(String teamId, String season) {
-        Map data = getDataTitle();
+    public LinkedHashMap getBarData(String teamId, String season) {
+        LinkedHashMap data = getDataTitle();
         data.put("data",getItemOfBarData(teamId,season));
         return data;
     }
     // 获取-赛季-各项球队场均-最高数据
-    public Map getMaxItemOfTeam(String season) {
+    public LinkedHashMap getMaxItemOfTeam(String season) {
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
-            Map data = new HashMap<String,Double>();
+            LinkedHashMap data = new LinkedHashMap<String,Double>();
             //获取所有已结束球队的参赛次数
             MatchDao matchDao = sqlSession.getMapper(MatchDao.class);
-            List<Map> team = matchDao.getGameCount(season);
+            List<LinkedHashMap> team = matchDao.getGameCount(season);
             //获取各个球队已结束的比赛的数据总和
             MatchDataDao matchDataDao = sqlSession.getMapper(MatchDataDao.class);
-            List<Map> teamSum = matchDataDao.getSeasonSum(season);
+            List<LinkedHashMap<String,Object>> teamSum = matchDataDao.getSeasonSum(season);
             Double maxScore= 0.0,maxAssist = 0.0,maxBound = 0.0 ,maxSteal= 0.0,maxBlock =0.0,maxFoul = 0.0,maxTurnOver = 0.0;
             for( int index = 0; index < team.size();index++) {
                 Double game = Double.valueOf(team.get(index).get("game").toString());
@@ -115,8 +115,8 @@ public class MatchDataService {
         }
     }
     // 获取球队对比数据
-    public Map getDataTitle() {
-        Map data = new LinkedHashMap();
+    public LinkedHashMap getDataTitle() {
+        LinkedHashMap data = new LinkedHashMap();
         data.put("title","赛季数据对比");
         data.put("min",0);
         data.put("max",120);

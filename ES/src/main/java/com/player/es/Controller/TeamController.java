@@ -5,6 +5,7 @@ import com.player.es.Utils.ResponseUnit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -24,5 +25,17 @@ public class TeamController {
         String teamId = map.get("teamId");
 
         return new ResponseUnit();
+    }
+    /*积分榜*/
+    @RequestMapping("/api/home/sort")
+    public ResponseUnit apiPublicTeamT(@RequestBody Map<String,String> parse) {
+        String season = parse.get("season");
+        return new ResponseUnit(200,"成功",teamService.getAllTeamSort(season));
+    }
+    /*特定球队的本赛季-赛事赛程-按月份分组*/
+    @RequestMapping("/api/global/teamMatchs")
+    public ResponseUnit getTeamSeasonMatchList(@RequestBody Map<String,String> parse) {
+        String season = parse.get("season"), teamId = parse.get("teamId");
+        return new ResponseUnit(200,"成功",teamService.getTeamSeasonMatchList(teamId,season));
     }
 }

@@ -10,4 +10,8 @@ public interface PlayerDao {
     public void initPlayerList(PlayerDomain pd);
     //该球员是否存在
     public Boolean isExist(String playerId);
+    //球员信息
+    PlayerDomain getPlayerInfo(String playerId);
+    // 球员信息
+    PlayerDomain getPlayerInfoByName(String teamId, String playerName);
 }

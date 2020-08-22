@@ -24,7 +24,6 @@
         -->
         <package name="com.player.es.Domain"/>
     </typeAliases>
-
     <!--开发环境设置 -->
     <environments default="development">
         <environment id="development">

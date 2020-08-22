@@ -17,4 +17,11 @@
         SELECT * from player
         where player_id = #{playerId}
     </select>
+    <!--球员基本信息 -->
+    <select id="getPlayerInfo" parameterType="String" resultType="PlayerDomain">
+        SELECT * from player where player_id = #{playerId}
+    </select>
+    <select id="getPlayerInfoByName" parameterType="String" resultType="PlayerDomain">
+        SELECT * from team
+    </select>
 </mapper>
