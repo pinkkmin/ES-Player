@@ -22,7 +22,12 @@
         <!-- 直接指定一个包名，MyBatis 会在包名下面搜索需要的 Java Bean
          则在使用的地方直接使用类的名字
         -->
+        <!-- 公用Domain部分 -->
         <package name="com.player.es.Domain"/>
+        <!-- cmf 负责模块中的Domain -->
+        <package name="com.player.es.cmf.Domain"/>
+        <!-- lss 负责模块中的Domain -->
+        <package name="com.player.es.lss.Domain"/>
     </typeAliases>
     <!--开发环境设置 -->
     <environments default="development">
@@ -38,12 +43,13 @@
     </environments>
 
     <mappers>
-        <mapper resource="mapper/UserMapper.xml"/>
-        <mapper resource="mapper/TeamMapper.xml"/>
-        <mapper resource="mapper/PlayerMapper.xml"/>
-        <mapper resource="mapper/MatchMapper.xml"/>
-        <mapper resource="mapper/ServiceMapper.xml"/>
-        <mapper resource="mapper/MatchDataMapper.xml"/>
-        <mapper resource="mapper/NoticeMapper.xml"/>
+        <!-- cmf mapper.xml -->
+        <mapper resource="mapper/cmf/TeamMapper.xml"/>
+        <mapper resource="mapper/cmf/PlayerMapper.xml"/>
+        <mapper resource="mapper/cmf/MatchMapper.xml"/>
+        <mapper resource="mapper/cmf/MatchDataMapper.xml"/>
+        <!-- lss mapper.xml -->
+        <mapper resource="mapper/lss/UserMapper.xml"/>
+        <mapper resource="mapper/lss/NoticeMapper.xml"/>
     </mappers>
 </configuration>

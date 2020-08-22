@@ -1,12 +1,12 @@
 package com.player.es.Utils;
 
-import com.player.es.Config.MybatisConfig;
-import com.player.es.Dao.MatchDao;
-import com.player.es.Dao.MatchDataDao;
-import com.player.es.Dao.PlayerDao;
-import com.player.es.Domain.MatchDataDomain;
+import com.player.es.cmf.Dao.MatchDao;
+import com.player.es.cmf.Dao.MatchDataDao;
+import com.player.es.cmf.Dao.PlayerDao;
 import com.player.es.Domain.MatchDomain;
 import com.player.es.Domain.PlayerDomain;
+import com.player.es.Config.MybatisConfig;
+import com.player.es.Domain.MatchDataDomain;
 import org.apache.ibatis.session.SqlSession;
 
 import java.io.BufferedReader;

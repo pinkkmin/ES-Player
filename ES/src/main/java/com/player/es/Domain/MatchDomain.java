@@ -14,7 +14,7 @@ public class MatchDomain {
     String matchHome;   // 主队ID
     String matchAway;   // 客队ID
     String matchSeason; // 赛季 like：2019-2020
-    
+
     Date matchDate;     // 赛事日期 like 2020-8-2 14:00
     int matchStatus;    // 比赛状态 已结束/未进行
     int homeScore;      // 主队的得分

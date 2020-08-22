@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--绑定一个DAO接口-->
+<mapper namespace="com.player.es.lss.Dao.UserDao">
+
+    <!-- 如果在mybatis-config.xml中不适用类型别名
+         那么此处就应该是 <select id="select" resultType="UserDomain">
+    -->
+    <select id="getByUserID" parameterType="String" resultType="UserDomain">
+    SELECT  * FROM user_info WHERE user_id = #{userID}
+    </select>
+    <select id="getByUserName" parameterType="String" resultType="UserDomain">
+    SELECT  * FROM user_info WHERE user_name = #{userName}
+    </select>
+    <update id="updatePassword" parameterType="Map">
+        update user_info set passwd=#{password} where user_id = #{userId}
+    </update>
+</mapper>
