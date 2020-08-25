@@ -76,8 +76,14 @@ public class PublicController {
      */
     @RequestMapping("player")
     public ResponseUnit apiPublicPlayer(@RequestBody Map<String,String> parse) {
+        String playerId = parse.get("playerId"),season=parse.get("season");
+        return new ResponseUnit(200,"成功",teamService.getPublicPlayer(playerId,season));
+    }
 
-        return null;
+    @RequestMapping("player/season")
+    public ResponseUnit getPlayerSeasonDataList(@RequestBody Map<String,String> parse) {
+        String playerId = parse.get("playerId"),season=parse.get("season");
+        return new ResponseUnit(200,"成功",teamService.getPlayerSeasonDataList(playerId,season));
     }
 
     /**

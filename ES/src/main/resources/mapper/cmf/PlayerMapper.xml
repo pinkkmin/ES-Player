@@ -24,4 +24,45 @@
     <select id="getPlayerInfoByName" parameterType="String" resultType="PlayerDomain">
         SELECT * from team
     </select>
+    <select id="getPlayerInfoOfTeam" resultType="java.util.LinkedHashMap">
+       select player_id playerId,player_name playerName,team.team_id teamId,team_name teamName,player_number number,
+        player_height height,player_weight weight,player_wingspan wingspan,player_birth birth, player_position position
+        from team,player
+        where player_id = #{playerId} and player.team_id = team.team_id;
+    </select>
+    <select id="getSeasonAvg" parameterType="String" resultType="java.util.LinkedHashMap">
+        select FORMAT(avg(score),1) '得分', FORMAT(avg(bound),1) '篮板',FORMAT(avg(assist),1) '助攻',
+	    FORMAT(avg(block),1)'盖帽',FORMAT(avg(steal),1)'抢断',FORMAT(avg(turnover),1) '失误',
+        FORMAT(avg(free),1)'罚球',FORMAT(avg(foul),1)'犯规'
+        from match_data,match_
+        where match_season=#{season} AND match_.match_id = match_data.match_id AND player_id =#{playerId};
+    </select>
+    <select id="getAllPlayerSeasonAvg" parameterType="String" resultType="java.util.LinkedHashMap">
+        select FORMAT(avg(score),1) score, FORMAT(avg(bound),1) bound,FORMAT(avg(assist),1) assist,
+	    FORMAT(avg(block),1)block,FORMAT(avg(steal),1)steal,FORMAT(avg(turnover),1) turnover,
+        FORMAT(avg(free),1) free,FORMAT(avg(foul),1)foul
+        from match_data,match_
+        where match_.match_id=match_data.match_id AND match_season=#{season};
+    </select>
+    <select id="getAllPlayerSeasonMax" parameterType="String" resultType="java.util.LinkedHashMap">
+        select max(score) score ,max(assist) assist,max(bound) bound,max(block) block,max(steal) steal,max(foul) foul,
+        max(turnover)turnover
+        from match_,match_data
+        where match_.match_id = match_data.match_id AND match_season = #{season}
+    </select>
+    <select id="getPlayerSeasonData" parameterType="String" resultType="java.util.LinkedHashMap">
+        select date_format(match_date,'%y-%m-%d %H:%i') date,team_name teamName,match_time time,score,assist,bound,steal,block,turnover,free,foul
+        from match_data,match_,team
+        where match_.match_id=match_data.match_id AND
+        ((match_home=team.team_id and is_home=1) or (match_away=team.team_id and is_home=0))
+        AND  player_id=#{playerId} AND match_season=#{season};
+    </select>
+    <select id="getPlayerAvgDataOfSeason" parameterType="String" resultType="java.util.LinkedHashMap">
+        select match_season season,FORMAT(avg(match_time),1)time,FORMAT((score),1) score,FORMAT(avg(assist),1)assist,
+        FORMAT(avg(bound),1)bound,FORMAT(avg(steal),1)steal,FORMAT(avg(block),1)block,
+        FORMAT(avg(turnover),1)turnover,FORMAT(avg(free),1)free,FORMAT(avg(foul),1)foul
+        from match_data,match_
+        where match_data.match_id=match_.match_id and player_id=#{playerId}
+        group by match_season order by match_season desc;
+    </select>
 </mapper>

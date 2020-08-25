@@ -1,5 +1,7 @@
 package com.player.es.cmf.Service;
 
+import com.player.es.Domain.MatchDataDomain;
+import com.player.es.Utils.GlobalConstDataUtils;
 import com.player.es.cmf.Dao.MatchDao;
 import com.player.es.cmf.Dao.MatchDataDao;
 import com.player.es.cmf.Dao.TeamDao;
@@ -13,12 +15,10 @@ import java.util.*;
 
 @Service
 public class MatchDataService {
-    public String getTeamName(String teamId) {
-        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
-            TeamDao teamDao = sqlSession.getMapper(TeamDao.class);
-            TeamDomain team = teamDao.getTeamInfo(teamId);
-            return team.getTeamName();
-        }
+    private GlobalConstDataUtils globalConstData;
+    private  DecimalFormat df = new DecimalFormat("#.0");
+    public MatchDataService(){
+        globalConstData = new GlobalConstDataUtils();
     }
     // 获取radar雷达图数据
     public LinkedHashMap getRadarData(String teamId, String season) {
@@ -27,7 +27,7 @@ public class MatchDataService {
         maxData.remove("maxFoul");
         maxData.remove("maxTurnOver");
         data.put("maxData",maxData);
-        data.put("data",getAvgItemOfTeam(teamId,season));
+        data.put("data",getAvgItemOfTeamList(teamId,season));
         return data;
     }
     public LinkedHashMap getBarData(String teamId, String season) {
@@ -36,7 +36,7 @@ public class MatchDataService {
         return data;
     }
     // 获取-赛季-各项球队场均-最高数据
-    public LinkedHashMap getMaxItemOfTeam(String season) {
+    public LinkedHashMap<String,Double> getMaxItemOfTeam(String season) {
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
             LinkedHashMap data = new LinkedHashMap<String,Double>();
             //获取所有已结束球队的参赛次数
@@ -60,59 +60,58 @@ public class MatchDataService {
                 maxFoul = Math.max(maxFoul,Double.valueOf(teamSum.get(index).get("foul").toString())/game);
                 maxTurnOver = Math.max(maxTurnOver,Double.valueOf(teamSum.get(index).get("turnover").toString())/game);
             }
-            DecimalFormat df = new DecimalFormat("#.0");
-            data.put("maxScore",df.format(maxScore));
-            data.put("maxAssist",df.format(maxAssist));
-            data.put("maxBound",df.format(maxBound));
-            data.put("maxBlock",df.format(maxBlock));
-            data.put("maxSteal",df.format(maxSteal));
-            data.put("maxTurnOver",df.format(maxTurnOver));
-            data.put("maxFoul",df.format(maxFoul));
+
+            data.put("maxScore",Double.valueOf(df.format(maxScore)));
+            data.put("maxAssist",Double.valueOf(df.format(maxAssist)));
+            data.put("maxBound",Double.valueOf(df.format(maxBound)));
+            data.put("maxBlock",Double.valueOf(df.format(maxBlock)));
+            data.put("maxSteal",Double.valueOf(df.format(maxSteal)));
+            data.put("maxTurnOver",Double.valueOf(df.format(maxTurnOver)));
+            data.put("maxFoul",Double.valueOf(df.format(maxFoul)));
             return data;
         }
     }
     // 获取-赛季-球队-场均各数据项
     // 得分-助攻-篮板-盖帽-抢断-盖帽-失误-犯规
-    public List getAvgItemData(String teamId, String season) {
+    Double getDoubleByObject(Object value,int game){
+        Double data = Double.valueOf(value.toString())/game;
+        return  Double.valueOf(df.format(data));
+    }
+    public ArrayList getAvgItemData(String teamId, String season) {
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
             MatchDao matchDao = sqlSession.getMapper(MatchDao.class);
             int game = matchDao.getTeamGameCount(teamId, season);
             MatchDataDao matchDataDao = sqlSession.getMapper(MatchDataDao.class);
             Map data =  matchDataDao.getTeamSum(teamId, season);
-            List value = new ArrayList<Double>();
-            Double score = Double.valueOf(data.get("score").toString()) / game;
-            Double assist = Double.valueOf(data.get("assist").toString()) / game;
-            Double bound = Double.valueOf(data.get("bound").toString()) / game;
-            Double steal = Double.valueOf(data.get("steal").toString()) / game;
-            Double block = Double.valueOf(data.get("block").toString()) / game;
-            Double foul = Double.valueOf(data.get("foul").toString()) / game;
-            Double turnover = Double.valueOf(data.get("turnover").toString()) / game;
-            DecimalFormat df = new DecimalFormat("#.0");
-            value.add(df.format(score));
-            value.add(df.format(assist));
-            value.add(df.format(bound));
-            value.add(df.format(block));
-            value.add(df.format(steal));
-            value.add(df.format(turnover));
-            value.add(df.format(foul));
+            ArrayList value = new ArrayList<Double>();
+            for (String name: globalConstData.getEnNameList()
+                 ) {
+                Double item = getDoubleByObject(data.get(name),game);
+                value.add(item);
+
+            }
             return value;
         }
 
     }
-    public List getAvgItemOfTeam(String teamId, String season) {
+    public LinkedHashMap getAvgItemOfTeam(String teamId, String season) {
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
             List value = getAvgItemData(teamId, season);
-            Map item = new LinkedHashMap();  // return data
+            LinkedHashMap item = new LinkedHashMap();  // return data
             value.remove(6);
             value.remove(5);
             item.put("value",value);
             TeamDao teamDao = sqlSession.getMapper(TeamDao.class);
             TeamDomain team = teamDao.getTeamInfo(teamId);
             item.put("name",team.getTeamName());
-            List reData = new ArrayList<Map>();
-            reData.add(item);
-            return reData;
+            return item;
         }
+    }
+    public ArrayList getAvgItemOfTeamList(String teamId, String season) {
+            ArrayList reData = new ArrayList<Map>();
+            reData.add(getAvgItemOfTeam(teamId,season));
+            return reData;
+
     }
     // 获取球队对比数据
     public LinkedHashMap getDataTitle() {
@@ -122,50 +121,40 @@ public class MatchDataService {
         data.put("max",120);
         return data;
     }
-    public List getAvgItem(String season){
+    public ArrayList getAvgItem(String season){
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
             TeamDao team = sqlSession.getMapper(TeamDao.class);
-            int teamCount = team.getTeamCount();
             MatchDao matchDao  = sqlSession.getMapper(MatchDao.class);
             int matchCount = matchDao.getMatchCount(season);
             MatchDataDao mdd = sqlSession.getMapper(MatchDataDao.class);
             Map data =   mdd.getAllTeamSum(season);
-            List reList = new ArrayList();
-            DecimalFormat df = new DecimalFormat("#.0");
-            Double score = Double.valueOf(data.get("score").toString())/(matchCount);
-            Double assist = Double.valueOf(data.get("assist").toString())/(matchCount);
-            Double bound = Double.valueOf(data.get("bound").toString())/(matchCount);
-            Double block = Double.valueOf(data.get("block").toString())/(matchCount);
-            Double steal = Double.valueOf(data.get("steal").toString())/(matchCount);
-            Double turnover = Double.valueOf(data.get("turnover").toString())/(matchCount);
-            Double foul = Double.valueOf(data.get("foul").toString())/(matchCount);
-            reList.add(df.format(score));
-            reList.add(df.format(assist));
-            reList.add(df.format(bound));
-            reList.add(df.format(block));
-            reList.add(df.format(steal));
-            reList.add(df.format(turnover));
-            reList.add(df.format(foul));
+            ArrayList reList = new ArrayList();
+            for (String name: globalConstData.getEnNameList()
+            ) {
+                Double item = getDoubleByObject(data.get(name),matchCount);
+                reList.add(item);
+
+            }
             return reList;
         }
     }
-    public List getItemOfBarData(String teamId, String season) {
-        List dataList = new ArrayList<List<String>>();
-        List dataFirst = new ArrayList<String>();
-        dataFirst.add("item"); dataFirst.add("得分");
-        dataFirst.add("助攻"); dataFirst.add("篮板");
-        dataFirst.add("抢断"); dataFirst.add("盖帽");
-        dataFirst.add("失误"); dataFirst.add("犯规");
+    public ArrayList getItemOfBarData(String teamId, String season) {
+        ArrayList dataList = new ArrayList<List<String>>();
+        ArrayList dataFirst = new ArrayList<String>();
+        dataFirst.add("item");
+        for (String name : globalConstData.getCnNameList() ) {
+            dataFirst.add(name);
+        }
         dataList.add(dataFirst);
         List dataTeam =  getAvgItemData(teamId,season);
         dataTeam.add(0,"球队");
         List dataMax = new ArrayList<String>();
         dataMax.add("最高");
         Map maxItem = getMaxItemOfTeam(season);
-        dataMax.add(maxItem.get("maxScore"));  dataMax.add(maxItem.get("maxAssist"));
-        dataMax.add(maxItem.get("maxBound"));  dataMax.add(maxItem.get("maxBlock"));
-        dataMax.add(maxItem.get("maxSteal"));  dataMax.add(maxItem.get("maxTurnOver"));
-        dataMax.add(maxItem.get("maxFoul"));
+        for (String name:globalConstData.getMax7NameList()
+             ) {
+            dataMax.add(maxItem.get(name));
+        }
         List dataAvg = getAvgItem(season);
         dataAvg.add(0,"平均");
         dataList.add(dataTeam);
@@ -173,12 +162,15 @@ public class MatchDataService {
         dataList.add(dataAvg);
         return dataList;
     }
-    public Map getCompareTeam(String teamId, String season) {
+    /**root-修改赛事记录数据**/
+    public MatchDataDomain editMatchData(MatchDataDomain mdd) {
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
             MatchDataDao matchDataDao = sqlSession.getMapper(MatchDataDao.class);
-            Map demo = matchDataDao.getTeamSum(teamId,season);
-            System.out.println(demo);
+           int data = matchDataDao.editMatchData(mdd);
+            sqlSession.commit();
+           if(data==0)return null;
+           return matchDataDao.queryMatchData(mdd.getMatchId(), mdd.getPlayerId());
+
         }
-        return null;
     }
 }

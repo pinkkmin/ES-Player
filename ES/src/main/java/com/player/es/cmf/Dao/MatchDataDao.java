@@ -9,6 +9,8 @@ public interface MatchDataDao {
     void  initMatchDataList(MatchDataDomain md);
     // 球队-某赛季-各项-总和
     LinkedHashMap<String,Object> getTeamSum(String teamId, String season);
+    // 球队-某赛季-各项-总和
+    LinkedHashMap<String,Object> getTeamSumByCN(String teamId, String season);
     //球队-按赛季分组-各项数据总和
     ArrayList<LinkedHashMap<String,Object>> getTeamSumBySeason(String teamId);
     //某赛季-所有球队数据总和
@@ -16,5 +18,9 @@ public interface MatchDataDao {
     //赛事各项-总和
     List<LinkedHashMap<String,Object>> getSeasonSum(String season);
     // 球员各项-最高数据项
-    LinkedHashMap<String,Object> getMaxItemOfPlayer(String season) ;
+    LinkedHashMap<String,Double> getMaxItemOfPlayer(String season) ;
+    //修改数据
+    int editMatchData(MatchDataDomain mdd);
+    //查询球员
+    MatchDataDomain queryMatchData(String matchId,String playerId);
 }

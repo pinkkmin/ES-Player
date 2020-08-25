@@ -11,6 +11,7 @@ import java.util.*;
 public interface MatchDao {
     //初始化match列表
     void initMatchList(MatchDomain md);
+    ArrayList<String> getSeasonList();
     //root /编辑赛事 return row
     int editMatch(MagMatchDto item);
     // match是否存在
@@ -35,11 +36,27 @@ public interface MatchDao {
     LinkedHashMap<String,Object> getMaxBoundAwayOfMatch(String item,String matchId);
     LinkedHashMap<String,Object> getMaxAssistAwayOfMatch(String item,String matchId);
     // 某赛事-主客队-各项数据
-    LinkedHashMap<String,Object> getTeamSumOfMatch(String isHome,String matchId);
+    LinkedHashMap<String,Double> getTeamSumOfMatch(String isHome,String matchId);
     //某赛事-主客队-所有球员-所有数据
     ArrayList<MatchDataPojo> getTeamDataOfMatch(String matchId, String isHome);
     //本赛季-所有赛事
     ArrayList<LinkedHashMap<String,Object>> getSeasonAllMatch(@Param("season")String season, @Param("page")Integer page, @Param("pageSize")Integer pageSize);
     // 查询赛事
     ArrayList<LinkedHashMap<String,Object>> queryMatch(QueryMatchDto item);
+    // 今天赛事
+    ArrayList<LinkedHashMap<String,Object>> todayMatch();
+    // 今天以后七场赛事
+    ArrayList<LinkedHashMap<String,Object>> sevenMatchAfterToday();
+    // 今日之前七场赛事
+    ArrayList<LinkedHashMap<String,Object>> sevenMatchBeforeToday();
+
+    //****
+    //球队-按赛季分组-各项数据总和
+    ArrayList<LinkedHashMap<String,Object>> getTeamSeasonSumList(String teamId);
+    //所有球队-按赛季分组-各项数据总和
+    ArrayList<LinkedHashMap<String,Object>> getAllTeamSeasonSumList();
+    //球队-按赛季分组-比赛场次
+    ArrayList<LinkedHashMap<String,Object>> getTeamGameCountList(String teamId);
+    //球队-按赛季分组-比赛场次
+    ArrayList<LinkedHashMap<String,Object>> getAllTeamGameCountList();
 }

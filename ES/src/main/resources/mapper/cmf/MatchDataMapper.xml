@@ -18,6 +18,12 @@
         from team,match_,match_data
         where team_id = #{teamId} AND match_season = #{season} AND match_.match_id = match_data.match_id AND( #{teamId} = match_home OR match_away = #{teamId})
     </select>
+    <select id="getTeamSumByCN" parameterType="String" resultType="java.util.LinkedHashMap">
+        select team_id,team_name,sum(score) '得分', sum(assist) '助攻', sum(bound) '篮板',sum(steal) "抢断", sum(block) '盖帽',
+        sum(free) '罚球', sum(foul) '犯规',sum(turnover) '失误'
+        from team,match_,match_data
+        where team_id = #{teamId} AND match_season = #{season} AND match_.match_id = match_data.match_id AND( #{teamId} = match_home OR match_away = #{teamId})
+    </select>
     <!-- 球队-按赛季分组-各项数据总和 -->
     <select id="getTeamSumBySeason" parameterType="String" resultType="java.util.LinkedHashMap">
         select match_season season,sum(score) score ,sum(bound) bound, sum(assist) assist,
@@ -42,8 +48,18 @@
     </select>
     <!--球员-各项数据最高 -->
     <select id="getMaxItemOfPlayer" parameterType="String" resultType="java.util.LinkedHashMap">
-        select max(score)score ,max(assist)assist,max(bound)bound,max(block)block,max(steal)steal
+        select max(score)+5 maxScore ,max(assist)+3 maxAssist,max(bound)+5 maxBound,max(block)+3 maxBlock,max(steal)+3 maxSteal
         from match_,match_data
         where match_.match_id = match_data.match_id AND match_season = #{season}
+    </select>
+    <update id="editMatchData" parameterType="MatchDataDomain" >
+        UPDATE match_data
+        SET score = #{score},assist=#{assist},bound=#{bound},steal=#{steal},block=#{block},foul=#{foul},
+            turnover=#{turnover},free=#{free},match_time=#{matchTime}
+        where match_id = #{matchId} and player_id = #{playerId};
+    </update>
+    <select id="queryMatchData" parameterType="String" resultType="MatchDataDomain">
+        select  * from match_data
+        where match_id = #{matchId} and player_id = #{playerId};
     </select>
 </mapper>

@@ -10,10 +10,7 @@ import java.util.Date;
 public class MatchPojo {
     String matchId;
     @DateTimeFormat(pattern="yyyy年MM月dd日 hh:mm")
-    @JsonFormat(
-            pattern = "yyyy年MM月dd日 hh:mm",
-            timezone = "GMT+8"
-    )
+    @JsonFormat(pattern = "yyyy年MM月dd日 hh:mm" )
     Date  date;
     String homeId;
     String awayId;

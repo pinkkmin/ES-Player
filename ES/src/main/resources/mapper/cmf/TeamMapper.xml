@@ -7,8 +7,16 @@
     <select id="getTeamList" resultType="map">
       select  team_id teamId, team_name teamName from team
     </select>
+    <select id="getSeasonList" resultType="java.util.LinkedHashMap">
+        select distinct match_season season from match_ order by match_season desc;
+    </select>
     <select id="getTeamInfo" parameterType="String" resultType="TeamDomain">
         select * from team
+        where team_id = #{teamId}
+    </select>
+    <select id="getTeamInfoById" parameterType="String" resultType="java.util.LinkedHashMap">
+        select team_id teamId, team_name teamName
+         from team
         where team_id = #{teamId}
     </select>
     <select id="getTeamCount" resultType="int">
@@ -34,5 +42,18 @@
         AND (home.team_id = match_home and away.team_id = match_away)
         AND (match_home = #{teamId} OR match_away = #{teamId})
         order by match_date;
+    </select>
+    <select id="lastSevenMatch" resultType="java.util.LinkedHashMap" parameterType="String">
+        select DATE_FORMAT(match_date,'%m-%d') date,match_home,home_score, match_away,away_score
+        from match_
+        where match_status=1 AND match_date  &lt;= now() AND (match_home=#{teamId} or match_away=#{teamId})
+        order by match_date Desc  limit 0,7;
+    </select>
+    <select id="lastSeasonMatch" resultType="java.util.LinkedHashMap" parameterType="String">
+        select DATE_FORMAT(match_date,'%m-%d') date,match_home,home_score, match_away,away_score
+        from match_
+        where match_season=#{season} AND match_status=1 AND
+        match_date  &lt;= NOW() AND (match_home=#{teamId} or match_away=#{teamId})
+        order by match_date Desc;
     </select>
 </mapper>

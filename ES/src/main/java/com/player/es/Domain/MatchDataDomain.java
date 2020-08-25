@@ -14,7 +14,7 @@ public class MatchDataDomain {
     int block;
     int steal;
     int foul;
-    int turnOver;
+    int turnover;
     int free;
     public  MatchDataDomain(){
 
@@ -30,7 +30,7 @@ public class MatchDataDomain {
         this.block = block;
         this.steal = steal;
         this.foul = foul;
-        this.turnOver = turnOver;
+        this.turnover = turnOver;
         this.free = free;
 
     }

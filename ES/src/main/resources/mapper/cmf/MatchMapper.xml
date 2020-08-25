@@ -9,6 +9,10 @@
     INTO match_(match_id,match_date,match_season,match_status,home_score,away_score,match_home,match_away)
     VALUES(#{matchId},#{matchDate},#{matchSeason},#{matchStatus},#{homeScore},#{awayScore},#{matchHome},#{matchAway})
     </select>
+    <select id="getSeasonList" resultType="String">
+        select distinct match_season season
+        from match_ order by match_season desc;
+    </select>
     <update id="editMatch" parameterType="MatchDataPojo">
         UPDATE match_
         SET match_date = #{date},match_status=#{status},
@@ -20,7 +24,7 @@
         WHERE match_id = #{matchId}
     </select>
     <select id="getAllTeamSort" parameterType="String" resultType="java.util.LinkedHashMap">
-        SELECT (@i:=@i+1) rand ,team_id teamId,team_name teamName ,win,fail, 100*Win/(Win+Fail) sort from
+        SELECT (@i:=@i+1) rand ,team_id teamId,team_name teamName,win,fail, 100*Win/(Win+Fail) sort from
         (SELECT @i:=0) as i,
         (SELECT team_id,team_name,
         (SELECT COUNT(*) FROM match_ where match_season = #{season} AND match_status= 1 AND ((match_home = team_id AND home_score > away_score) or (match_away = team_id AND away_score > home_score))) win,
@@ -90,8 +94,8 @@
         where player.player_id = match_data.player_id AND match_id = #{matchId} AND is_home = 0;
     </select>
     <select id="getTeamSumOfMatch" parameterType="String" resultType="java.util.LinkedHashMap">
-        select sum(score) '得分', sum(assist) '助攻', sum(bound) '篮板',sum(steal) "抢断", sum(block) '盖帽',
-        sum(free) '罚球', sum(foul) '犯规'
+        select sum(score) '得分', sum(assist) '助攻', sum(bound) '篮板',sum(steal) '抢断', sum(block) '盖帽',
+        sum(free) '罚球', sum(foul) '犯规',sum(turnover)'失误'
         from match_data
         where match_id =#{matchId} AND is_home = #{isHome};
     </select>
@@ -125,5 +129,54 @@
         </if>
         order by match_date
         limit #{page},#{pageSize};
+    </select>
+    <select id="todayMatch" resultType="java.util.LinkedHashMap">
+        select match_id matchId,DATE_FORMAT(match_date,'%Y-%m-%d %H:%i') time,match_status status,
+        match_home homeId,home.team_name homeNamem,match_away awayId,away.team_name awayName,
+        home_score homeScore, away_score awayScore
+        from match_,team home,team away
+        where DATE_FORMAT(match_date,'%Y-%m-%d')  = DATE_FORMAT(now(),'%Y-%m-%d')  AND home.team_id = match_home AND away.team_id=match_away
+        order by match_date Desc ;
+    </select>
+    <select id="sevenMatchAfterToday" resultType="java.util.LinkedHashMap">
+        select match_id matchId,DATE_FORMAT(match_date,'%y-%m-%d %H:%i') time,match_status status,
+        match_home homeId,home.team_name homeNamem,match_away awayId,away.team_name awayName,
+        home_score homeScore, away_score awayScore
+        from match_,team home,team away
+        where match_date  > now() AND home.team_id = match_home AND away.team_id=match_away
+        order by match_date Desc limit 0,7;
+    </select>
+    <select id="sevenMatchBeforeToday" resultType="java.util.LinkedHashMap">
+        select match_id matchId,DATE_FORMAT(match_date,'%y-%m-%d %H:%i') time,match_status status,
+        match_home homeId,home.team_name homeNamem,match_away awayId,away.team_name awayName,
+        home_score homeScore, away_score awayScore
+        from match_,team home,team away
+        where match_date  &lt; now() AND home.team_id = match_home AND away.team_id=match_away
+        order by match_date Desc limit 0,7;
+    </select>
+    <select id="getTeamSeasonSumList" parameterType="String" resultType="java.util.LinkedHashMap">
+        select match_season season,sum(score) score,sum(assist) assist,sum(bound)bound,sum(steal) steal,
+        sum(block)block,sum(foul) foul,sum(turnover)turnover
+        from match_data,match_
+        where match_data.match_id=match_.match_id AND (match_home=#{teamId} or match_away=#{teamId})
+        group by match_season order by match_season desc;
+    </select>
+    <select id="getAllTeamSeasonSumList" resultType="java.util.LinkedHashMap">
+        select match_season season,sum(score) score,sum(assist) assist,sum(bound)bound,sum(steal) steal,
+        sum(block)block,sum(foul) foul,sum(turnover) turnover
+        from match_data,match_
+        where match_data.match_id=match_.match_id
+        group by match_season order by match_season desc;
+    </select>
+    <select id="getTeamGameCountList" parameterType="String" resultType="java.util.LinkedHashMap">
+        select match_season season,count(*) game
+        from match_
+        where (match_home=#{teamId} or match_away=#{teamId})
+        group by match_season order by match_season desc;
+    </select>
+    <select id="getAllTeamGameCountList" resultType="java.util.LinkedHashMap">
+        select match_season season,count(*) game
+        from match_
+        group by match_season order by match_season desc;
     </select>
 </mapper>
