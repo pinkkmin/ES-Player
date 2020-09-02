@@ -6,7 +6,7 @@ import lombok.Data;
 public class MatchDataDomain {
     String matchId;
     String playerId;
-    int isHome;
+    int isHome;  //1home 0away
     int score;
     int bound;
     int assist;

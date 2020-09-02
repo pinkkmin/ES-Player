@@ -9,8 +9,11 @@ import org.apache.ibatis.annotations.Param;
 import java.util.*;
 
 public interface MatchDao {
+    //获取-本赛季-名称
+    LinkedHashMap<String,Object> getCurrSeason();
     //初始化match列表
     void initMatchList(MatchDomain md);
+    LinkedHashMap getTeamId(String matchId);
     ArrayList<String> getSeasonList();
     //root /编辑赛事 return row
     int editMatch(MagMatchDto item);

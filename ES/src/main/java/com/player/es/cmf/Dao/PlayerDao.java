@@ -12,6 +12,8 @@ public interface PlayerDao {
     List<PlayerDomain> test();
     //初始化球员列表
     public void initPlayerList(PlayerDomain pd);
+    //初始化-追加外援
+    public void initUpdatePlayer(PlayerDomain pd);
     //该球员是否存在
     public Boolean isExist(String playerId);
     //球员信息

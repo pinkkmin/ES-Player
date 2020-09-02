@@ -10,6 +10,7 @@ import com.player.es.cmf.Domain.POJO.PieItemPojo;
 import com.player.es.cmf.Domain.POJO.SortItemPojo;
 import com.player.es.Config.MybatisConfig;
 import com.player.es.cmf.Domain.POJO.TeamComparePojo;
+import com.sun.javafx.scene.control.skin.VirtualFlow;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Service;
 
@@ -79,11 +80,11 @@ public class TeamService {
         return data;
     }
     /*积分榜*/
-    public ArrayList<SortItemPojo> getAllTeamSort(String season)  {
+    public LinkedList<SortItemPojo> getAllTeamSort(String season)  {
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
             MatchDao matchDao = sqlSession.getMapper(MatchDao.class);
             ArrayList<LinkedHashMap>  sortList = matchDao.getAllTeamSort(season);
-            ArrayList<SortItemPojo> data = new ArrayList<>();
+            LinkedList<SortItemPojo> data = new LinkedList<>();
             int mid = sortList.size()/2;
             for(int i = 0;i < mid;i++)  {
                 data.add(new SortItemPojo(sortList.get(i),sortList.get(i+mid)));

@@ -4,10 +4,17 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!--绑定一个DAO接口-->
 <mapper namespace="com.player.es.cmf.Dao.MatchDao">
+    <select id="getCurrSeason" resultType="java.util.LinkedHashMap">
+        select max(match_season) season from match_
+    </select>
     <select id="initMatchList" parameterType="MatchDomain">
     INSERT
     INTO match_(match_id,match_date,match_season,match_status,home_score,away_score,match_home,match_away)
     VALUES(#{matchId},#{matchDate},#{matchSeason},#{matchStatus},#{homeScore},#{awayScore},#{matchHome},#{matchAway})
+    </select>
+    <select id="getTeamId" parameterType="String" resultType="java.util.LinkedHashMap">
+        select match_home home,match_away away from match_
+        where match_id = #{matchId}
     </select>
     <select id="getSeasonList" resultType="String">
         select distinct match_season season
@@ -64,34 +71,40 @@
     </select>
     <!-- getMaxItemOfMatch   Home and Away-->
     <select id="getMaxScoreHomeOfMatch" parameterType="String" resultType="java.util.LinkedHashMap">
-        select player_number homeNumber,player_name homeName,max(score) homeValue
+        select player_number homeNumber,player_name homeName,score homeValue
         from match_data,player
-        where player.player_id = match_data.player_id AND match_id = #{matchId} AND is_home = 1;
+        where player.player_id = match_data.player_id AND match_id = #{matchId} AND is_home = 1
+        order by score desc limit 1;
     </select>
     <select id="getMaxBoundHomeOfMatch" parameterType="String" resultType="java.util.LinkedHashMap">
-        select player_number homeNumber,player_name homeName,max(bound) homeValue
+        select player_number homeNumber,player_name homeName,bound homeValue
         from match_data,player
-        where player.player_id = match_data.player_id AND match_id = #{matchId} AND is_home = 1;
+        where player.player_id = match_data.player_id AND match_id = #{matchId} AND is_home = 1
+        order by bound desc limit 1;
     </select>
     <select id="getMaxAssistHomeOfMatch" parameterType="String" resultType="java.util.LinkedHashMap">
-        select player_number homeNumber,player_name homeName,max(assist) homeValue
+        select player_number homeNumber,player_name homeName,assist homeValue
         from match_data,player
-        where player.player_id = match_data.player_id AND match_id = #{matchId} AND is_home = 1;
+        where player.player_id = match_data.player_id AND match_id = #{matchId} AND is_home = 1
+        order by assist desc limit 1;
     </select>
     <select id="getMaxScoreAwayOfMatch" parameterType="String" resultType="java.util.LinkedHashMap">
-        select player_number awayNumber,player_name awayName,max(score) awayValue
+        select player_number awayNumber,player_name awayName,score awayValue
         from match_data,player
-        where player.player_id = match_data.player_id AND match_id = #{matchId} AND is_home = 0;
+        where player.player_id = match_data.player_id AND match_id = #{matchId} AND is_home = 0
+        order by score desc limit 1;
     </select>
     <select id="getMaxBoundAwayOfMatch" parameterType="String" resultType="java.util.LinkedHashMap">
-        select player_number awayNumber,player_name awayName,max(bound) awayValue
+        select player_number awayNumber,player_name awayName,bound  awayValue
         from match_data,player
-        where player.player_id = match_data.player_id AND match_id = #{matchId} AND is_home = 0;
+        where player.player_id = match_data.player_id AND match_id = #{matchId} AND is_home = 0
+        order by bound desc limit 1;
     </select>
     <select id="getMaxAssistAwayOfMatch" parameterType="String" resultType="java.util.LinkedHashMap">
-        select player_number awayNumber,player_name awayName,max(assist) awayValue
+        select player_number awayNumber,player_name awayName,assist awayValue
         from match_data,player
-        where player.player_id = match_data.player_id AND match_id = #{matchId} AND is_home = 0;
+        where player.player_id = match_data.player_id AND match_id = #{matchId} AND is_home = 0
+        order by assist desc limit 1;
     </select>
     <select id="getTeamSumOfMatch" parameterType="String" resultType="java.util.LinkedHashMap">
         select sum(score) '得分', sum(assist) '助攻', sum(bound) '篮板',sum(steal) '抢断', sum(block) '盖帽',
@@ -132,7 +145,7 @@
     </select>
     <select id="todayMatch" resultType="java.util.LinkedHashMap">
         select match_id matchId,DATE_FORMAT(match_date,'%Y-%m-%d %H:%i') time,match_status status,
-        match_home homeId,home.team_name homeNamem,match_away awayId,away.team_name awayName,
+        match_home homeId,home.team_name homeName,match_away awayId,away.team_name awayName,
         home_score homeScore, away_score awayScore
         from match_,team home,team away
         where DATE_FORMAT(match_date,'%Y-%m-%d')  = DATE_FORMAT(now(),'%Y-%m-%d')  AND home.team_id = match_home AND away.team_id=match_away
@@ -140,7 +153,7 @@
     </select>
     <select id="sevenMatchAfterToday" resultType="java.util.LinkedHashMap">
         select match_id matchId,DATE_FORMAT(match_date,'%y-%m-%d %H:%i') time,match_status status,
-        match_home homeId,home.team_name homeNamem,match_away awayId,away.team_name awayName,
+        match_home homeId,home.team_name homeName,match_away awayId,away.team_name awayName,
         home_score homeScore, away_score awayScore
         from match_,team home,team away
         where match_date  > now() AND home.team_id = match_home AND away.team_id=match_away
@@ -148,7 +161,7 @@
     </select>
     <select id="sevenMatchBeforeToday" resultType="java.util.LinkedHashMap">
         select match_id matchId,DATE_FORMAT(match_date,'%y-%m-%d %H:%i') time,match_status status,
-        match_home homeId,home.team_name homeNamem,match_away awayId,away.team_name awayName,
+        match_home homeId,home.team_name homeName,match_away awayId,away.team_name awayName,
         home_score homeScore, away_score awayScore
         from match_,team home,team away
         where match_date  &lt; now() AND home.team_id = match_home AND away.team_id=match_away

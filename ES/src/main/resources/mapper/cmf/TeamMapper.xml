@@ -29,7 +29,7 @@
         ROUND(AVG(block),1) block,ROUND(AVG(steal),1) steal
         from player,match_data,match_
         where  match_.match_id = match_data.match_id AND match_data.player_id = player.player_id
-        AND match_season = #{season}  AND team_id = #{teamId}
+        AND match_season = #{season}  AND( (#{teamId} = match_home and is_home=1) OR (match_away = #{teamId} and is_home=0))
         group by player.player_id;
     </select>
 <!--某队-赛季-所有赛事-->

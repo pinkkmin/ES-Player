@@ -22,13 +22,13 @@ public class MatchDomain {
     public  MatchDomain() {
 
     }
-    public MatchDomain(String id, String home, String away, String season, Date date, int status, int homeScore, int awayScore){
-        this.awayScore = awayScore;
-        this.homeScore = homeScore;
+    public MatchDomain(String id, String home, String away, String season, Date date){
+        this.awayScore = 0;
+        this.homeScore = 0;
         this.matchDate = date;
         this.matchAway = away;
         this.matchHome = home;
-        this.matchStatus = status;
+        this.matchStatus = 1;
         this.matchId = id;
         this.matchSeason = season;
     }

@@ -16,17 +16,33 @@ public class PlayerDomain {
     String playerWingspan;
     String playerPosition;
     int playerServicing;
+    int logo;
     public  PlayerDomain() {
     }
-    public  PlayerDomain(String id, String teamId_,String name, Date birth, String height, String weight, String position, int servicing) {
+    public PlayerDomain(String id, String teamId_,String name) {
         this.playerId = id;
         this.teamId = teamId_;
+        this.playerNumber = 0;
+        this.playerBirth  = new Date();
+        this.playerName = name;
+        this.playerWeight = "0";
+        this.playerHeight = "0";
+        this.playerPosition = "C";
+        this.playerServicing = 1;
+        this.logo = logo;
+        this.playerWingspan = "0";
+    }
+    public  PlayerDomain(String id, String teamId_,String name, int num, Date birth, String height, String weight, String position, int logo) {
+        this.playerId = id;
+        this.teamId = teamId_;
+        this.playerNumber = num;
         this.playerBirth  = birth;
         this.playerName = name;
         this.playerWeight = weight;
         this.playerHeight = height;
         this.playerPosition = position;
-        this.playerServicing = servicing;
+        this.playerServicing = 1;
+        this.logo = logo;
         this.playerWingspan = "0";
     }
 }

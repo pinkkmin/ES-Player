@@ -9,10 +9,16 @@
     </select>
     <select id="initPlayerList" parameterType="PlayerDomain">
     INSERT
-    INTO player(player_id, team_id,player_name,player_birth,player_height,player_weight,player_wingspan,player_position,player_servicing)
-    VALUES(#{playerId},#{teamId},#{playerName},#{playerBirth},#{playerHeight},#{playerWeight},
-           #{playerWingspan},#{playerPosition},#{playerServicing})
+    INTO player(player_id, team_id,player_name,player_number,player_birth,player_height,player_weight,player_wingspan,player_position,player_servicing,player_logo)
+    VALUES(#{playerId},#{teamId},#{playerName},#{playerNumber},#{playerBirth},#{playerHeight},#{playerWeight},
+           #{playerWingspan},#{playerPosition},#{playerServicing},#{logo})
 </select>
+    <select id="initUpdatePlayer" parameterType="PlayerDomain">
+        UPDATE  player
+        set player_number = #{playerNumber},player_birth=#{playerBirth},
+        player_height=#{playerHeight},player_weight = #{playerWeight},player_position=#{playerPosition}
+        where player_id = #{playerId}
+    </select>
     <select id="isExist" parameterType="String" resultType="boolean">
         SELECT * from player
         where player_id = #{playerId}

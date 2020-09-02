@@ -24,7 +24,12 @@ public class MatchService {
     public MatchService(){
         globalConstData = new GlobalConstDataUtils();
     }
-
+    public LinkedHashMap<String,Object> getCurSeason(){
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            MatchDao matchDao = sqlSession.getMapper(MatchDao.class);
+           return matchDao.getCurrSeason();
+        }
+    }
     public LinkedHashMap getTeamSort(String teamId, String season) {
         List<LinkedHashMap> team = getALLTeamSort(season);
         for (LinkedHashMap item : team

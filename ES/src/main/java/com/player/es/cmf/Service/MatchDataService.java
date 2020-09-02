@@ -123,7 +123,6 @@ public class MatchDataService {
     }
     public ArrayList getAvgItem(String season){
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
-            TeamDao team = sqlSession.getMapper(TeamDao.class);
             MatchDao matchDao  = sqlSession.getMapper(MatchDao.class);
             int matchCount = matchDao.getMatchCount(season);
             MatchDataDao mdd = sqlSession.getMapper(MatchDataDao.class);
@@ -131,7 +130,7 @@ public class MatchDataService {
             ArrayList reList = new ArrayList();
             for (String name: globalConstData.getEnNameList()
             ) {
-                Double item = getDoubleByObject(data.get(name),matchCount);
+                Double item = getDoubleByObject(data.get(name),matchCount*2);
                 reList.add(item);
 
             }
