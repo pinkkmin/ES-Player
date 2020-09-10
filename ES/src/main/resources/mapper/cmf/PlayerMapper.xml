@@ -30,6 +30,10 @@
     <select id="getPlayerInfoByName" parameterType="String" resultType="PlayerDomain">
         SELECT * from team
     </select>
+    <select id="getPlayerByName" parameterType="String" resultType="java.util.LinkedHashMap">
+        select  player_id playerId,player_name name,player_number number from player,team
+        where player_name = #{name} and team.team_id = #{teamId} and player.team_id = team.team_id;
+    </select>
     <select id="getPlayerInfoOfTeam" resultType="java.util.LinkedHashMap">
        select player_id playerId,player_name playerName,team.team_id teamId,team_name teamName,player_number number,
         player_height height,player_weight weight,player_wingspan wingspan,player_birth birth, player_position position
@@ -56,11 +60,46 @@
         from match_,match_data
         where match_.match_id = match_data.match_id AND match_season = #{season}
     </select>
+    <select id="getSeasonMaxAvgScore" parameterType="String" resultType="Double">
+        select FORMAT(avg(score),1) from match_data,match_
+        where match_.match_id = match_data.match_id and match_season=#{season}
+        group by player_id order by avg(score) desc limit 1;
+    </select>
+    <select id="getSeasonMaxAvgAssist" parameterType="String" resultType="Double">
+        select FORMAT(avg(assist),1) from match_data,match_
+        where match_.match_id = match_data.match_id and match_season=#{season}
+        group by player_id order by avg(assist) desc limit 1;
+    </select>
+    <select id="getSeasonMaxAvgBound" parameterType="String" resultType="Double">
+        select FORMAT(avg(bound),1) from match_data,match_
+        where match_.match_id = match_data.match_id and match_season=#{season}
+        group by player_id order by avg(bound) desc limit 1;
+    </select>
+    <select id="getSeasonMaxAvgBlock" parameterType="String" resultType="Double">
+        select FORMAT(avg(block),1) from match_data,match_
+        where match_.match_id = match_data.match_id and match_season=#{season}
+        group by player_id order by avg(block) desc limit 1;
+    </select>
+    <select id="getSeasonMaxAvgSteal" parameterType="String" resultType="Double">
+        select FORMAT(avg(steal),1) from match_data,match_
+        where match_.match_id = match_data.match_id and match_season=#{season}
+        group by player_id order by avg(steal) desc limit 1;
+    </select>
+    <select id="getSeasonMaxAvgFoul" parameterType="String" resultType="Double">
+        select FORMAT(avg(foul),1) from match_data,match_
+        where match_.match_id = match_data.match_id and match_season=#{season}
+        group by player_id order by avg(foul) desc limit 1;
+    </select>
+    <select id="getSeasonMaxAvgTurnOver" parameterType="String" resultType="Double">
+        select FORMAT(avg(turnover),1) from match_data,match_
+        where match_.match_id = match_data.match_id and match_season=#{season}
+        group by player_id order by avg(turnover) desc limit 1;
+    </select>
     <select id="getPlayerSeasonData" parameterType="String" resultType="java.util.LinkedHashMap">
         select date_format(match_date,'%y-%m-%d %H:%i') date,team_name teamName,match_time time,score,assist,bound,steal,block,turnover,free,foul
         from match_data,match_,team
         where match_.match_id=match_data.match_id AND
-        ((match_home=team.team_id and is_home=1) or (match_away=team.team_id and is_home=0))
+        ((match_away=team.team_id and is_home=1) or (match_home=team.team_id and is_home=0))
         AND  player_id=#{playerId} AND match_season=#{season};
     </select>
     <select id="getPlayerAvgDataOfSeason" parameterType="String" resultType="java.util.LinkedHashMap">

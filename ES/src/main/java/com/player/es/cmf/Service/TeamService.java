@@ -342,11 +342,20 @@ public class TeamService {
             ArrayList<ArrayList<Object>> data = new ArrayList<>();
             LinkedHashMap<String, Double> playerAvg = playerDao.getSeasonAvg(playerId, season);
             LinkedHashMap<String, Double> allPlayerAvg = playerDao.getAllPlayerSeasonAvg(season);
-            LinkedHashMap<String, Double> playerMax = playerDao.getAllPlayerSeasonMax(season);
+            ArrayList<Object> maxAvg = new ArrayList<>();
+            maxAvg.add("最高");
+            maxAvg.add(playerDao.getSeasonMaxAvgScore(season));
+            maxAvg.add( playerDao.getSeasonMaxAvgAssist(season));
+            maxAvg.add( playerDao.getSeasonMaxAvgBound(season));
+            maxAvg.add( playerDao.getSeasonMaxAvgSteal(season));
+            maxAvg.add( playerDao.getSeasonMaxAvgBlock(season));
+            maxAvg.add(playerDao.getSeasonMaxAvgTurnOver(season));
+            maxAvg.add( playerDao.getSeasonMaxAvgFoul(season));
             data.add(getArrayItemOfBarData());
             data.add(getArrayValueByCN("球员",playerAvg));
-            data.add(getArrayValueByEN("最高",playerMax));
+            data.add(maxAvg);
             data.add(getArrayValueByEN("平均",allPlayerAvg));
+//            System.out.println(data);
             return data;
         }
     }

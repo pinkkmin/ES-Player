@@ -21,6 +21,7 @@ public interface PlayerDao {
     // 球员信息
     PlayerDomain getPlayerInfoByName(String teamId, String playerName);
     //球员信息
+    LinkedHashMap<String,Object> getPlayerByName(@Param("teamId") String teamId, @Param("name") String name);
     LinkedHashMap getPlayerInfoOfTeam(String playerId);
     //球员-赛季-各项均分
     LinkedHashMap<String,Double> getSeasonAvg(String playerId, String season);
@@ -28,6 +29,14 @@ public interface PlayerDao {
     LinkedHashMap<String,Double> getAllPlayerSeasonAvg(String season);
     //所有球员-赛季-各项数据最高
     LinkedHashMap<String,Double> getAllPlayerSeasonMax(String season);
+    //所有球员-赛季-各项数据场均最高
+    Double getSeasonMaxAvgScore(@Param("season") String season);
+    Double getSeasonMaxAvgBound(String season);
+    Double getSeasonMaxAvgAssist(String season);
+    Double getSeasonMaxAvgSteal(String season);
+    Double getSeasonMaxAvgBlock(String season);
+    Double getSeasonMaxAvgFoul(String season);
+    Double getSeasonMaxAvgTurnOver(String season);
     //球员-赛季得分情况
     ArrayList<LinkedHashMap<String,Double>> getPlayerSeasonData(@Param("playerId") String playerId, @Param("season")String season);
     //球员-赛季各项均分

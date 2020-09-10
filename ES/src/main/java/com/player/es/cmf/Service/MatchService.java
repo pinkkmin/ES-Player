@@ -1,16 +1,22 @@
 package com.player.es.cmf.Service;
 
+import com.player.es.Domain.PlayerDomain;
+import com.player.es.Utils.FileUtils;
 import com.player.es.Utils.GlobalConstDataUtils;
 import com.player.es.cmf.Dao.MatchDao;
 import com.player.es.cmf.Dao.MatchDataDao;
+import com.player.es.cmf.Dao.PlayerDao;
 import com.player.es.cmf.Domain.Dto.MagMatchDto;
 import com.player.es.cmf.Domain.Dto.QueryMatchDto;
 import com.player.es.cmf.Domain.POJO.MatchDataPojo;
 import com.player.es.cmf.Domain.POJO.TeamComparePojo;
 import com.player.es.Config.MybatisConfig;
 import com.player.es.cmf.Domain.POJO.MagMatchPojo;
+import javafx.print.PageLayout;
 import org.apache.ibatis.session.SqlSession;
+import org.omg.CORBA.OBJ_ADAPTER;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -77,16 +83,19 @@ public class MatchService {
     // 本场赛事-最佳数据
     ArrayList<LinkedHashMap<String,Object>> getBestDataOfMatch(String matchId) {
         try(SqlSession sqlSession = MybatisConfig.getSqlSession()) {
-            MatchDao matchDao = sqlSession.getMapper(MatchDao.class);
-            ArrayList<LinkedHashMap<String,Object>> bestData = new  ArrayList<>();
+            MatchDao matchDao = sqlSession.getMapper(MatchDao.class);ArrayList<LinkedHashMap<String,Object>> bestData = new  ArrayList<>();
+
             LinkedHashMap<String,Object> score = matchDao.getMaxScoreHomeOfMatch("score",matchId);
             score.putAll(matchDao.getMaxScoreAwayOfMatch("score",matchId));
+            score.put("index","得分");
             bestData.add(score);
             LinkedHashMap<String,Object> bound = matchDao.getMaxBoundHomeOfMatch("bound",matchId);
             bound.putAll(matchDao.getMaxBoundAwayOfMatch("bound",matchId));
+            bound.put("index","篮板");
             bestData.add(bound);
             LinkedHashMap<String,Object> assist = matchDao.getMaxAssistHomeOfMatch("assist",matchId);
             assist.putAll(matchDao.getMaxAssistAwayOfMatch("assist",matchId));
+            assist.put("index","助攻");
             bestData.add(assist);
             return bestData;
         }
@@ -198,5 +207,68 @@ public class MatchService {
             data.put("data", matchList);
             return data;
         }
+    }
+    /*****上传赛事记录文件*/
+    public LinkedHashMap<String,Object> doUpdateMatchData(MultipartFile file, Map match){
+        LinkedHashMap<String,Object> data = new LinkedHashMap<>();
+        FileUtils fileUtils = new FileUtils();
+        String fileName = file.getOriginalFilename();
+        String lastName = fileName.substring(fileName.lastIndexOf(".")+1);
+        LinkedHashMap<String,Object> fileData ;
+        System.out.println(fileName);
+        System.out.println(lastName);
+        if(lastName.equals("csv")) {
+            fileData =  fileUtils.doMatchDataByCSV(file);
+        }
+        else if(lastName.equals("xls")){
+            fileData = fileUtils.doMatchDataByXLS(file);
+        }
+        else {
+            data.put("code",402);
+            data.put("message","文件格式不正确");
+            return data;
+        }
+        if(fileData == null) {
+            data.put("code",400);
+            data.put("message","文件读取出错,请检查重试");
+            return data;
+        }
+        if((Integer)fileData.get("code") == 250) {
+            data.put("code",250);
+            data.put("message","文件格式不符合要求,请重新检查个字段是否齐全");
+            return data;
+        }
+        String homeId = (String)match.get("homeId");
+        String awayId = (String)match.get("awayId");
+        ArrayList<MatchDataPojo> homePlayer = (ArrayList)fileData.get("home"),awayPlayer = (ArrayList)fileData.get("away");
+        ArrayList<MatchDataPojo> home = new ArrayList<>(),away = new ArrayList<>();
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            PlayerDao playerDao = sqlSession.getMapper(PlayerDao.class);
+            for (MatchDataPojo item : homePlayer
+            ) {
+                LinkedHashMap<String, Object> player = playerDao.getPlayerByName(homeId,item.getName());
+                if(player!=null){
+                    item.setNumber((Integer)player.get("number"));
+                    item.setPlayerId((String)player.get("playerId"));
+                    item.setName((String)player.get("name"));
+                home.add(item);
+                }
+            }
+            for (MatchDataPojo item : awayPlayer
+            ) {
+                LinkedHashMap<String, Object> player = playerDao.getPlayerByName(awayId,item.getName());
+                if(player != null){
+                    item.setNumber((Integer)player.get("number"));
+                    item.setPlayerId((String)player.get("playerId"));
+                    item.setName((String)player.get("name"));
+                    away.add(item);
+                }
+            }
+        }
+        data.put("code",200);
+        data.put("massage","读取文件成功");
+        data.put("home",home);
+        data.put("away",away);
+        return  data;
     }
 }

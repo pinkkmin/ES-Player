@@ -24,7 +24,7 @@
     </select>
     <!-- 某队-所有球员-某赛季-场均数据-得分-助攻-抢断-盖帽-篮板 -->
     <select id="getPlayerAvgData" parameterType="String" resultType="HashMap">
-        select player.player_id playerId,player_name name, player_position position, player_number number,
+        select player.player_id playerId,player_name name, player_position position, player_number number,player_logo logo,
         ROUND(AVG(score),1) score,ROUND(AVG(bound),1) bound,ROUND(AVG(assist),1) assist,
         ROUND(AVG(block),1) block,ROUND(AVG(steal),1) steal
         from player,match_data,match_

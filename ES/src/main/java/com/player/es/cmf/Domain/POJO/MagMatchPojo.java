@@ -3,8 +3,10 @@ package com.player.es.cmf.Domain.POJO;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
+import java.lang.reflect.Array;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Data
 /*  管理-赛事-item-pojo*/
