@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 @RestController
-@RequestMapping("/notice")
+@RequestMapping("/api/notice")
 public class NoticeController {
     @Autowired
     NoticeService noticeService;

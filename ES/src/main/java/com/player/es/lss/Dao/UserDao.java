@@ -10,4 +10,5 @@ public interface UserDao {
     UserDomain getByUserID(String userID);
     UserDomain getByUserName(String userName);
     int updatePassword(Map<String,String> message);
+    int updateEmail(Map<String,String> map);
 }

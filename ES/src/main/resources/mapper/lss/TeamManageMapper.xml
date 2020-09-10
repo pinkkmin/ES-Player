@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--绑定一个DAO接口-->
+<mapper namespace="com.player.es.lss.Dao.TeamManageDao">
+<!--    球队管理：编辑球队信息-->
+    <update id="editTeam" parameterType="Map">
+        update team set team_name=#{name},team_coach=#{coach},team_city=#{city},team_home=#{home},team_club=#{club}
+        where team_id=#{teamId}
+    </update>
+<!--    球队管理：编辑球员信息-->
+    <update id="editPlayer" parameterType="Map">
+        update player set player_name=#{name},player_birth=#{birth},player_height=#{height},player_weight=#{weight},
+        player_wingspan=#{wingspan},player_number=#{number},player_position=#{position} where player_id=#{playerId}
+    </update>
+</mapper>

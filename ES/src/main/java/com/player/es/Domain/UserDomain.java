@@ -11,6 +11,6 @@ public class UserDomain {
     private String email;
    // private Date regDate;
     private int role;
-
+    private String teamId;
 
 }

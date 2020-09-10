@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.player.es.lss.Dao.GlobalDao">
+<!--    获取指定数量用户信息-->
+    <select id="getActualNumUser" parameterType="int" resultType="UserDomain">
+        select * from user_info limit #{num}
+    </select>
+<!--    获取所有球队信息-->
+    <select id="getAllTeam" resultType="TeamDomain">
+        select * from team
+    </select>
+<!--    根据球队id获取球员信息-->
+    <select id="getTeamPlayer" parameterType="String" resultType="PlayerDomain">
+        select * from player where team_id=#{teamId}
+    </select>
+<!--    获取指定赛事的主客队球员信息-->
+    <select id="getMatchPlayer" parameterType="String" resultType="PlayerDomain">
+        select * from player where player_id in(
+        select player_id from match_data where match_id=#{matchId}
+        )
+    </select>
+<!--    获取指定数量球员信息-->
+    <select id="getActualNumPlayer" parameterType="int" resultType="PlayerDomain">
+        select * from player limit #{num}
+    </select>
+<!--    获取所有球队球员-按球队分组-->
+<!--    获取所有球队id和姓名-->
+    <select id="getAllTeamId" resultType="java.util.LinkedHashMap">
+        select team_id, team_name from team
+    </select>
+<!--    根据球队分组获取球员姓名和id-->
+    <select id="getTeamPlayerId" parameterType="String" resultType="java.util.LinkedHashMap">
+        select player_id, player_name from player where team_id=#{teamId}
+    </select>
+<!--    获取指定数量通知数量-->
+    <select id="getActualNumNotice" parameterType="int" resultType="NoticeDomain">
+        select * from notice limit #{num}
+    </select>
+<!--    根据球队id获取球队名-->
+    <select id="getActualTeamName" parameterType="String" resultType="String">
+        select team_name from team where team_id=#{teamId}
+    </select>
+<!--    根据用户id获取用户名-->
+    <select id="getActualUserName" parameterType="String" resultType="String">
+        select user_name from user_info where user_id=#{userId}
+    </select>
+<!--    根据队员id获取playerName-->
+    <select id="getActualPlayerName" parameterType="String" resultType="String">
+        select player_name from player where player_id=#{playerId}
+    </select>
+</mapper>

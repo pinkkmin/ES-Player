@@ -10,5 +10,6 @@ public class TeamDomain {
     String teamCoach;   // 教练
     String teamHome;   // 主场
     String teamClub;
+    int teamStatus;  //lss新增teamStatus
 
 }

@@ -8,13 +8,20 @@
     <!-- 如果在mybatis-config.xml中不适用类型别名
          那么此处就应该是 <select id="select" resultType="UserDomain">
     -->
+<!--    获取所有用户信息-->
     <select id="getByUserID" parameterType="String" resultType="UserDomain">
     SELECT  * FROM user_info WHERE user_id = #{userID}
     </select>
+<!--    通过用户名查找用户信息-->
     <select id="getByUserName" parameterType="String" resultType="UserDomain">
     SELECT  * FROM user_info WHERE user_name = #{userName}
     </select>
+<!--    修改密码-->
     <update id="updatePassword" parameterType="Map">
         update user_info set passwd=#{password} where user_id = #{userId}
+    </update>
+<!--    更新邮箱-->
+    <update id="updateEmail" parameterType="Map">
+        update user_info set email=#{newEmail} where user_id=#{userId}
     </update>
 </mapper>

@@ -11,6 +11,8 @@
 
     <!--设置 -->
     <settings>
+<!--        允许插入null-->
+        <setting name="jdbcTypeForNull" value="NULL"/>
         <!-- SQL日志输出-->
 
         <!--是否开启驼峰命名自动映射,即从经典数据库列名 A_COLUMN 映射到经典 Java 属性名 aColumn -->
@@ -51,5 +53,7 @@
         <!-- lss mapper.xml -->
         <mapper resource="mapper/lss/UserMapper.xml"/>
         <mapper resource="mapper/lss/NoticeMapper.xml"/>
+        <mapper resource="mapper/lss/GlobalMapper.xml"/>
+        <mapper resource="mapper/lss/ManageMapper.xml"/>
     </mappers>
 </configuration>

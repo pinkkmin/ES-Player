@@ -48,12 +48,12 @@ public class UserController {
     }
 //  -------------------------------------------接口1：我的信息获取---------------------------------------
     @RequiresAuthentication
-    @GetMapping("/user/info")
+    @GetMapping("/api/user/info")
     public ResponseUnit myInformation(){
         return ResponseUnit.succ(new  UserDomain());
     }
 //-------------------------------------------接口2：修改密码---------------------------------------
-    @RequestMapping("/user/password")
+    @RequestMapping("/api/user/password")
     public ResponseUnit password_change(@RequestBody Map<String,String> map){
         boolean work = userService.passwordChange(map.get("userId"),map.get("password"),map.get("newPasswd"));
         if(work){
@@ -62,4 +62,17 @@ public class UserController {
         else
             return ResponseUnit.fail("原密码不正确");
     }
+//    -------------------------------------------接口2：修改密码---------------------------------------
+//    -------------------------------------------接口3：修改邮箱-----------------------------------------
+    @RequestMapping("/api/user/email")
+    public ResponseUnit email_change(@RequestBody HashMap<String, String> hashMap){
+        boolean work = userService.emailChange(hashMap.get("userId"), hashMap.get("password"), hashMap.get("email"));
+        if(work){
+            return ResponseUnit.succ("");
+        }
+        else{
+            return ResponseUnit.fail("修改失败");
+        }
+    }
+//    -------------------------------------------接口3：修改邮箱-----------------------------------------
 }
