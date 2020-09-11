@@ -77,6 +77,6 @@ public class ManageController {
 //    后台管理：发布公告
     @RequestMapping("publish")
     public ResponseUnit publish(@RequestBody NoticeDomain noticeDomain){
-
+    return null;
     }
 }

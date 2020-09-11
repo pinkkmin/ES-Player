@@ -21,4 +21,5 @@ public interface TeamDao {
     ArrayList<LinkedHashMap<String,Object>> lastSevenMatch(String teamId);
     //球队-过去一个赛季-比赛
     ArrayList<LinkedHashMap<String,Object>> lastSeasonMatch(String teamId,String season);
+    ArrayList<LinkedHashMap<String,Object>> playerArrayByTeam(String teamId);
 }

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 /** API for manager team
@@ -55,6 +56,14 @@ public class TeamController {
     public ResponseUnit comparePlayer(@RequestBody Map<String, String> map){
         String homePlayerId = map.get("homePlayerId"), awayPlayerId = map.get("awayPlayerId"),season = map.get("season");
         LinkedHashMap data = teamService.comparePlayer(homePlayerId,awayPlayerId,season);
+        return new ResponseUnit(200,"数据请求成功....",data);
+    }
+    /**返回球队的阵容*/
+    @RequestMapping("/api/team/playerArray")
+    public ResponseUnit getPlayerArray(@RequestBody Map<String, String> map) {
+        String teamId = map.get("teamId");
+        String season = map.get("season");
+        ArrayList<LinkedHashMap<String,Object>> data =  teamService.getPlayerArray(teamId,season);
         return new ResponseUnit(200,"数据请求成功....",data);
     }
 }

@@ -41,7 +41,7 @@
         where match_season = #{season}
         AND (home.team_id = match_home and away.team_id = match_away)
         AND (match_home = #{teamId} OR match_away = #{teamId})
-        order by match_date;
+        order by match_date desc;
     </select>
     <select id="lastSevenMatch" resultType="java.util.LinkedHashMap" parameterType="String">
         select DATE_FORMAT(match_date,'%m-%d') date,match_home,home_score, match_away,away_score
@@ -55,5 +55,12 @@
         where match_season=#{season} AND match_status=1 AND
         match_date  &lt;= NOW() AND (match_home=#{teamId} or match_away=#{teamId})
         order by match_date Desc;
+    </select>
+    <select id="playerArrayByTeam" resultType="java.util.LinkedHashMap" parameterType="String">
+       select player_id playerId , player_name name,player_number number,player_position position,
+        date_format(NOW(),'%Y')-date_format(player_birth,'%Y') age,player_logo logo,
+        player_height height,player_weight weight
+        from player
+        where team_id = #{teamId} and player_servicing = 1 ;
     </select>
 </mapper>

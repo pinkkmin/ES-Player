@@ -120,7 +120,7 @@ public class TeamService {
                     }
                     i++;
                 }
-                item.put("month",curYear+"-"+curMonth);
+                item.put("month",curYear+"年"+curMonth);
                 item.put("data",matchItem);
                 data.add(item);
             }
@@ -456,5 +456,27 @@ public class TeamService {
         return data;
         }
 
+    }
+    public ArrayList<LinkedHashMap<String,Object>> getPlayerArray(String teamId, String season) {
+        ArrayList<LinkedHashMap<String,Object>> data = new ArrayList<>();
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            TeamDao teamDao = sqlSession.getMapper(TeamDao.class);
+            PlayerDao playerDao = sqlSession.getMapper(PlayerDao.class);
+            data = teamDao.playerArrayByTeam(teamId);
+            SimpleDateFormat smd = new SimpleDateFormat("yyyy");
+            int nowYear =   Integer.valueOf(smd.format(new Date()));
+            for (LinkedHashMap<String,Object> item:data
+                 ) {
+                String playerId = (String)item.get("playerId");
+                Double age = (Double)item.get("age");
+                if(age.intValue() == nowYear) {
+                    item.put("age","--");
+                }
+                LinkedHashMap<String,Object> avgData = playerDao.getSeasonAvgByEn(playerId,season);
+                item.putAll(avgData);
+//               System.out.println(item);
+            }
+        }
+        return data;
     }
 }

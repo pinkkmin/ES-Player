@@ -47,6 +47,13 @@
         from match_data,match_
         where match_season=#{season} AND match_.match_id = match_data.match_id AND player_id =#{playerId};
     </select>
+    <select id="getSeasonAvgByEn" parameterType="String" resultType="java.util.LinkedHashMap">
+        select FORMAT(avg(score),1) score, FORMAT(avg(bound),1) bound,FORMAT(avg(assist),1) assist,
+	    FORMAT(avg(block),1) block,FORMAT(avg(steal),1) steal,FORMAT(avg(turnover),1) turnover,
+        FORMAT(avg(free),1) free,FORMAT(avg(foul),1) foul
+        from match_data,match_
+        where match_season=#{season} AND match_.match_id = match_data.match_id AND player_id =#{playerId};
+    </select>
     <select id="getAllPlayerSeasonAvg" parameterType="String" resultType="java.util.LinkedHashMap">
         select FORMAT(avg(score),1) score, FORMAT(avg(bound),1) bound,FORMAT(avg(assist),1) assist,
 	    FORMAT(avg(block),1)block,FORMAT(avg(steal),1)steal,FORMAT(avg(turnover),1) turnover,
