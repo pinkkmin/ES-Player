@@ -160,22 +160,27 @@ public class TeamService {
             return new LinkedHashMap<>();
         }
     }
+    //***********************************
+    public LinkedHashMap<String,Object> getMatchListData(String teamId,ArrayList<LinkedHashMap<String,Object>> matchList){
+        LinkedHashMap<String,Object> data = new LinkedHashMap<>();
+        ArrayList<Integer> getData = new ArrayList<>(), lostData = new ArrayList<>();
+        ArrayList<String> date = new ArrayList<>();
+        Integer win = getLastMatchData(teamId,matchList,getData,lostData,date);
+        data.put("win",win);
+        data.put("fail",matchList.size()-win);
+        data.put("getData",getData);
+        data.put("lostData",lostData);
+        data.put("date",date);
+        return data;
+    }
     public LinkedHashMap<String,Object> getLastMatchList(String teamId,String season,ArrayList<LinkedHashMap<String,Object>> matchList){
-            LinkedHashMap<String,Object> data = getTeamSortInfo(teamId,season);
-            ArrayList<Integer> getData = new ArrayList<>(), lostData = new ArrayList<>();
-            ArrayList<String> date = new ArrayList<>();
-            Integer win = getLastMatchData(teamId,matchList,getData,lostData,date);
-            data.put("win",win);
-            data.put("fail",matchList.size()-win);
-            data.put("getData",getData);
-            data.put("lostData",lostData);
-            data.put("date",date);
-            return data;
+        LinkedHashMap<String,Object> data = getTeamSortInfo(teamId,season);
+        data.putAll(getMatchListData(teamId, matchList));
+        return data;
 
     }
     public LinkedHashMap<String,Object> lastSevenMatch(String teamId,String season) {
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
-
             TeamDao teamDao = sqlSession.getMapper(TeamDao.class);
             ArrayList<LinkedHashMap<String,Object>> matchList = teamDao.lastSevenMatch(teamId);
             return getLastMatchList(teamId,season,matchList);
@@ -188,6 +193,18 @@ public class TeamService {
             return getLastMatchList(teamId,season,matchList);
         }
     }
+    public LinkedHashMap<String,Object> compareTeamMatch(String homeId,String awayId,String season) {
+        LinkedHashMap<String,Object> data  = new LinkedHashMap<>();
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            TeamDao teamDao = sqlSession.getMapper(TeamDao.class);
+            ArrayList<LinkedHashMap<String,Object>> seasonMatch = teamDao.compareMatchByTeam(homeId,awayId,season);
+            ArrayList<LinkedHashMap<String,Object>> passMatch = teamDao.compareMatch(homeId,awayId);
+            data.put("season",getMatchListData(homeId,seasonMatch));
+            data.put("allMatch",getMatchListData(homeId,passMatch));
+        }
+        return data;
+    }
+
     /***compare team API**/
     ArrayList<TeamComparePojo> getCompareDataOfTeam(String homeId,String awayId,String season) {
         try(SqlSession sqlSession = MybatisConfig.getSqlSession()) {
@@ -211,6 +228,7 @@ public class TeamService {
         }
         return count;
     }
+    /// API COMPARE TEAM
     public LinkedHashMap<String,Object> compareTeam(String homeId,String awayId,String season) {
         LinkedHashMap<String,Object> data = new LinkedHashMap<>(),baseLineData = new LinkedHashMap<>();
         LinkedHashMap<String,Object> home = getTeamSortInfo(homeId,season),away = getTeamSortInfo(awayId,season);
@@ -225,7 +243,7 @@ public class TeamService {
         data.put("away",away);
         data.put("radarData",radarData);
         baseLineData.put("home",lastSevenMatch(homeId,season));
-        baseLineData.put("away",lastSeasonMatch(awayId,season));
+        baseLineData.put("away",lastSevenMatch(awayId,season));
         data.put("baseLineData",baseLineData);
         data.put("barData",barData);
         return data;
@@ -423,7 +441,9 @@ public class TeamService {
             seasonList.add(dataList.get(i).get("season").toString());
             for(int j = 0;j<7;j++) {
                 String name = nameList.get(j);
-                Double value = getDoubleData(dataList.get(i).get(name),gameList.get(i).get("game"));
+                long game = (Long)gameList.get(i).get("game");
+                if(opt == 1) game *= 2;
+                Double value = getDoubleData(dataList.get(i).get(name),game);
                 tableItem.put(name,value);
                 valueList.get(j).add(value);
             }
@@ -472,7 +492,9 @@ public class TeamService {
                 if(age.intValue() == nowYear) {
                     item.put("age","--");
                 }
+            //    System.out.println(playerId);
                 LinkedHashMap<String,Object> avgData = playerDao.getSeasonAvgByEn(playerId,season);
+               // System.out.println(avgData);
                 item.putAll(avgData);
 //               System.out.println(item);
             }

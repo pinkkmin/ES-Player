@@ -46,13 +46,14 @@ public interface MatchDao {
     ArrayList<LinkedHashMap<String,Object>> getSeasonAllMatch(@Param("season")String season, @Param("page")Integer page, @Param("pageSize")Integer pageSize);
     // 查询赛事
     ArrayList<LinkedHashMap<String,Object>> queryMatch(QueryMatchDto item);
+    int queryMatchCount(QueryMatchDto item);
     // 今天赛事
     ArrayList<LinkedHashMap<String,Object>> todayMatch();
     // 今天以后七场赛事
     ArrayList<LinkedHashMap<String,Object>> sevenMatchAfterToday();
     // 今日之前七场赛事
     ArrayList<LinkedHashMap<String,Object>> sevenMatchBeforeToday();
-
+   //赛季列表
     //****
     //球队-按赛季分组-各项数据总和
     ArrayList<LinkedHashMap<String,Object>> getTeamSeasonSumList(String teamId);

@@ -13,5 +13,6 @@ public class QueryMatchDto {
     String  homeId;
     String awayId;
     Integer page;
+    Integer start;
     Integer pageSize;
 }

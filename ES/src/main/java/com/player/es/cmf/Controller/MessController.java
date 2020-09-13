@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -58,9 +59,7 @@ public class MessController {
     // root-赛事管理-查询赛事
     @RequestMapping("/api/manager/queryMatch")
     public ResponseUnit magQueryMatch(@RequestBody QueryMatchDto item) {
-
             return new ResponseUnit(200,"hello",matchService.queryMatch(item));
-
     }
 
     // root-赛事管理-编辑球员赛事记录
@@ -69,5 +68,13 @@ public class MessController {
         MatchDataDomain data = mdService.editMatchData(mdd);
         if(data == null) return new ResponseUnit(220,"未发生修改....",null);
         return new ResponseUnit(200,"修改成功",data);
+    }
+    @RequestMapping("/api/team/info")
+    public ResponseUnit getTeamInfo(@RequestBody Map<String, String> map) {
+        String teamId = map.get("teamId");
+        String season = map.get("season");
+//        System.out.println(season);
+        LinkedHashMap data =  matchService.getTeamInfoBySort(teamId,season);
+        return new ResponseUnit(200,"数据请求成功....",data);
     }
 }

@@ -39,6 +39,10 @@ public class GlobalController {
         return new ResponseUnit(200,"成功",teamService.getTeamSeasonMatchList(teamId,season));
     }
     /**本赛季-名称**/
+    @GetMapping("/api/global/seasonList")
+    public ResponseUnit getSeasonList() {
+        return new ResponseUnit(200,"成功",mService.getSeasonList());
+    }
     @GetMapping("/api/global/curSeason")
     public ResponseUnit getCurSeasonName() {
 

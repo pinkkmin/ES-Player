@@ -6,15 +6,15 @@ import com.player.es.Utils.GlobalConstDataUtils;
 import com.player.es.cmf.Dao.MatchDao;
 import com.player.es.cmf.Dao.MatchDataDao;
 import com.player.es.cmf.Dao.PlayerDao;
+import com.player.es.cmf.Dao.TeamDao;
 import com.player.es.cmf.Domain.Dto.MagMatchDto;
 import com.player.es.cmf.Domain.Dto.QueryMatchDto;
 import com.player.es.cmf.Domain.POJO.MatchDataPojo;
 import com.player.es.cmf.Domain.POJO.TeamComparePojo;
 import com.player.es.Config.MybatisConfig;
 import com.player.es.cmf.Domain.POJO.MagMatchPojo;
-import javafx.print.PageLayout;
+import net.sf.saxon.expr.Component;
 import org.apache.ibatis.session.SqlSession;
-import org.omg.CORBA.OBJ_ADAPTER;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -44,7 +44,15 @@ public class MatchService {
         }
         return null;
     }
-
+    public LinkedHashMap getTeamInfoBySort(String teamId, String season) {
+        LinkedHashMap team = getTeamSort(teamId, season);
+        team.put("season",season);
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            TeamDao teamDao = sqlSession.getMapper(TeamDao.class);
+            team.putAll(teamDao.getTeamBaseInfo(teamId));
+        }
+        return team;
+    }
     public List<LinkedHashMap> getALLTeamSort(String season) {
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
             MatchDao matchDao = sqlSession.getMapper(MatchDao.class);
@@ -185,12 +193,16 @@ public class MatchService {
     }
     /**查询-赛事**/
     public LinkedHashMap<String,Object> queryMatch(QueryMatchDto item){
+        LinkedHashMap<String,Object> data  = new LinkedHashMap<>();
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
             LinkedHashMap<String,Object> reMap = new LinkedHashMap<>();
             MatchDao matchDao = sqlSession.getMapper(MatchDao.class);
             ArrayList<LinkedHashMap<String, Object>> matchList = matchDao.queryMatch(item);
-           return getMatchDataList(matchList);
+            int count = matchDao.queryMatchCount(item);
+           data.putAll(getMatchDataList(matchList));
+           data.replace("count",count);
         }
+        return data;
     }
     /**todayMatch**/
     public LinkedHashMap<String,Object> getTodayMatch(){
@@ -208,6 +220,7 @@ public class MatchService {
             return data;
         }
     }
+
     /*****上传赛事记录文件*/
     public LinkedHashMap<String,Object> doUpdateMatchData(MultipartFile file, Map match){
         LinkedHashMap<String,Object> data = new LinkedHashMap<>();
@@ -270,5 +283,11 @@ public class MatchService {
         data.put("home",home);
         data.put("away",away);
         return  data;
+    }
+    public ArrayList<String> getSeasonList() {
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+        MatchDao matchDao = sqlSession.getMapper(MatchDao.class);
+       return  matchDao.getSeasonList();
+        }
     }
 }

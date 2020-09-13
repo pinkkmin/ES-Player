@@ -130,7 +130,10 @@
         select match_season,match_.match_id,match_date,match_home,home.team_name homeName,
         match_away,away.team_name awayName,home_score,away_score,match_status
         from match_,team home ,team away
-        where match_season=#{season} AND (home.team_id = match_home AND away.team_id=match_away)
+        where  (home.team_id = match_home AND away.team_id=match_away)
+        <if test="season!=''and season != null">
+        AND     match_season=#{season}
+        </if>
         <if test="homeId!=''and homeId != null">
             AND match_home = #{homeId}
         </if>
@@ -140,8 +143,25 @@
         <if test="date!=null">
             AND (match_date >= #{date})
         </if>
-        order by match_date
-        limit #{page},#{pageSize};
+        order by match_date desc
+        limit #{start},#{pageSize};
+    </select>
+    <select id="queryMatchCount" parameterType="MatchDataPojo" resultType="int">
+        select count(*)
+        from match_,team home ,team away
+        where (home.team_id = match_home AND away.team_id=match_away)
+        <if test="season!=''and season != null">
+            AND match_season=#{season}
+        </if>
+        <if test="homeId!=''and homeId != null">
+            AND match_home = #{homeId}
+        </if>
+        <if test="awayId!=null and awayId  !=''">
+            AND match_away = #{awayId}
+        </if>
+        <if test="date!=null">
+            AND (match_date >= #{date})
+        </if>
     </select>
     <select id="todayMatch" resultType="java.util.LinkedHashMap">
         select match_id matchId,DATE_FORMAT(match_date,'%Y-%m-%d %H:%i') time,match_status status,
@@ -171,7 +191,8 @@
         select match_season season,sum(score) score,sum(assist) assist,sum(bound)bound,sum(steal) steal,
         sum(block)block,sum(foul) foul,sum(turnover)turnover
         from match_data,match_
-        where match_data.match_id=match_.match_id AND (match_home=#{teamId} or match_away=#{teamId})
+        where match_data.match_id=match_.match_id
+        AND ((match_home='cba2020015' and is_home=1) or (match_away='cba2020015' and is_home = 0))
         group by match_season order by match_season desc;
     </select>
     <select id="getAllTeamSeasonSumList" resultType="java.util.LinkedHashMap">

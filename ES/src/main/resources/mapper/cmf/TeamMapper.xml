@@ -14,6 +14,11 @@
         select * from team
         where team_id = #{teamId}
     </select>
+    <select id="getTeamBaseInfo" parameterType="String" resultType="java.util.LinkedHashMap">
+       select team_city city, team_coach coach, team_home home,team_club club,team_status status
+       from team
+    where team_id = #{teamId}
+    </select>
     <select id="getTeamInfoById" parameterType="String" resultType="java.util.LinkedHashMap">
         select team_id teamId, team_name teamName
          from team
@@ -54,6 +59,22 @@
         from match_
         where match_season=#{season} AND match_status=1 AND
         match_date  &lt;= NOW() AND (match_home=#{teamId} or match_away=#{teamId})
+        order by match_date Desc;
+    </select>
+    <select id="compareMatchByTeam" resultType="java.util.LinkedHashMap" parameterType="String">
+        select DATE_FORMAT(match_date,'%y-%m-%d') date,match_home,home_score, match_away,away_score
+        from match_
+        where match_status=1 AND match_date   &lt;= now() AND match_season = #{season}
+        AND ((match_home=#{homeId} and match_away=#{awayId})
+        OR (match_away=#{homeId} and match_home=#{awayId}))
+        order by match_date Desc;
+    </select>
+    <select id="compareMatch" resultType="java.util.LinkedHashMap" parameterType="String">
+        select DATE_FORMAT(match_date,'%y-%m-%d') date,match_home,home_score, match_away,away_score
+        from match_
+        where match_status=1 AND match_date   &lt;= now()
+        AND ((match_home=#{homeId} and match_away=#{awayId})
+        OR (match_away=#{homeId} and match_home=#{awayId}))
         order by match_date Desc;
     </select>
     <select id="playerArrayByTeam" resultType="java.util.LinkedHashMap" parameterType="String">
