@@ -50,6 +50,7 @@
         <mapper resource="mapper/cmf/PlayerMapper.xml"/>
         <mapper resource="mapper/cmf/MatchMapper.xml"/>
         <mapper resource="mapper/cmf/MatchDataMapper.xml"/>
+        <mapper resource="mapper/cmf/KeyNumMapper.xml"/>
         <!-- lss mapper.xml -->
         <mapper resource="mapper/lss/UserMapper.xml"/>
         <mapper resource="mapper/lss/NoticeMapper.xml"/>

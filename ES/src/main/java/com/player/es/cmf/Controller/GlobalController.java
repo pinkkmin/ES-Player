@@ -1,16 +1,19 @@
 package com.player.es.cmf.Controller;
 
+import com.player.es.Config.MybatisConfig;
+import com.player.es.Utils.EmailUtils;
 import com.player.es.Utils.FileUtils;
 import com.player.es.Utils.ResponseUnit;
 import com.player.es.cmf.Service.MatchService;
 import com.player.es.cmf.Service.TeamService;
 import com.sun.org.apache.regexp.internal.RE;
+import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -20,7 +23,6 @@ public class GlobalController {
     MatchService mService;
     @Autowired
     TeamService teamService;
-
     /**FOR Global API
      * api/global/curMatchs
      * api/global/teamMatchs
@@ -65,5 +67,30 @@ public class GlobalController {
             res.setData(data);
         }
         return res;
+    }
+    @RequestMapping("/api/global/getKeyNumber")
+    public ResponseUnit getKeyNumber(@RequestBody Map<String,String> map) {
+        String email = map.get("email");
+        int type = Integer.valueOf(map.get("type"));
+        return teamService.getKeyNumber(email,type);
+    }
+    @RequestMapping("/api/global/regKeyNumber")
+    public ResponseUnit regKeyNumber(@RequestBody Map<String,String> map) {
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            boolean isExist = false;
+            //if(!sign) return new ResponseUnit(400,"邮箱已被注册,可通过找回密码重新登录",null);
+            String email = map.get("email");
+            int type = Integer.valueOf(map.get("type"));
+            return teamService.getKeyNumber(email,type);
+        }
+    }
+    @RequestMapping("/api/global/resetPwd")
+    public ResponseUnit resetPassWord(@RequestBody Map<String,String> map) {
+        return teamService.resetPwd(map);
+
+    }
+    @RequestMapping("/api/global/register")
+    public ResponseUnit register(@RequestBody Map<String,String> map) {
+        return teamService.register(map);
     }
 }

@@ -1,5 +1,6 @@
 package com.player.es;
 
+import com.player.es.Utils.EmailUtils;
 import com.player.es.Utils.FileUtils;
 import com.player.es.Utils.InitUtils;
 import org.springframework.boot.SpringApplication;

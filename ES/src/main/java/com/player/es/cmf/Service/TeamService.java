@@ -1,10 +1,9 @@
 package com.player.es.cmf.Service;
 
+import com.player.es.Utils.EmailUtils;
 import com.player.es.Utils.GlobalConstDataUtils;
-import com.player.es.cmf.Dao.MatchDao;
-import com.player.es.cmf.Dao.MatchDataDao;
-import com.player.es.cmf.Dao.PlayerDao;
-import com.player.es.cmf.Dao.TeamDao;
+import com.player.es.Utils.ResponseUnit;
+import com.player.es.cmf.Dao.*;
 import com.player.es.cmf.Domain.POJO.MatchPojo;
 import com.player.es.cmf.Domain.POJO.PieItemPojo;
 import com.player.es.cmf.Domain.POJO.SortItemPojo;
@@ -15,6 +14,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.sql.SQLOutput;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -25,6 +25,7 @@ public class TeamService {
     //utils
     private GlobalConstDataUtils globalConstData;
     private DecimalFormat df = new DecimalFormat("#.0");
+    EmailUtils emailUtils = new EmailUtils();
 
     public TeamService() {
         globalConstData = new GlobalConstDataUtils();
@@ -500,5 +501,62 @@ public class TeamService {
             }
         }
         return data;
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////
+    public ResponseUnit getKeyNumber(String email,int type) {
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            int keyNumber = (int) (Math.random() * (999999 - 100001)) + 100001;
+            boolean sign = emailUtils.toSend(email,keyNumber,type);
+            if(sign) {
+                KeyDao keyDao = sqlSession.getMapper(KeyDao.class);
+                keyDao.deleteKey(email);
+                sqlSession.commit();
+                keyDao.insertKey(email, keyNumber, new Date());
+                sqlSession.commit();
+                return new ResponseUnit(200,"验证码已发送,请注意查收",null);
+            }
+        }
+        return new ResponseUnit(400,"验证码发送失败",null);
+    }
+    public ResponseUnit keyNumberRight(Map<String,String> map) {
+        String email = map.get("email");
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            KeyDao keyDao = sqlSession.getMapper(KeyDao.class);
+            LinkedHashMap<String, Object> res = keyDao.getKeyNumber(email);
+            String resEmail = (String) res.get("email");
+            if (null != resEmail) { // 用户存在
+                Date keyTime = (Date) res.get("key_time");
+                int keyNumber = (Integer) res.get("key_");
+                int kn = Integer.valueOf(map.get("keyNumber"));
+                Long start = keyTime.getTime() + 300900;
+                Long now = new Date().getTime();
+                if (keyNumber != kn) {
+                    return new ResponseUnit(400, "验证码错误", null);
+                }
+                if (now <= start) {
+                    keyDao.deleteKey(email);
+                    return new ResponseUnit(200, "密码已重置", null);
+                } else {
+                    return new ResponseUnit(400, "验证码失效", null);
+                }
+            } else {// 用户不存在
+                return new ResponseUnit(400, "验证码已过期", null);
+            }
+        }
+    }
+    public ResponseUnit resetPwd(Map<String,String> map) {
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            ResponseUnit data =  keyNumberRight(map);
+            return data;
+        }
+    }
+    public ResponseUnit register(Map<String,String> map) {
+            try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+                ResponseUnit data =  keyNumberRight(map);
+                if(data.getCode()==200){
+                    System.out.println("注册成功");
+                }
+                return data;
+            }
     }
 }
