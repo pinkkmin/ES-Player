@@ -3,6 +3,7 @@ package com.player.es.cmf.Service;
 import com.player.es.Domain.PlayerDomain;
 import com.player.es.Utils.FileUtils;
 import com.player.es.Utils.GlobalConstDataUtils;
+import com.player.es.Utils.ResponseUnit;
 import com.player.es.cmf.Dao.MatchDao;
 import com.player.es.cmf.Dao.MatchDataDao;
 import com.player.es.cmf.Dao.PlayerDao;
@@ -14,6 +15,7 @@ import com.player.es.cmf.Domain.POJO.TeamComparePojo;
 import com.player.es.Config.MybatisConfig;
 import com.player.es.cmf.Domain.POJO.MagMatchPojo;
 import net.sf.saxon.expr.Component;
+import net.sf.saxon.expr.instruct.ITemplateCall;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -289,5 +291,33 @@ public class MatchService {
         MatchDao matchDao = sqlSession.getMapper(MatchDao.class);
        return  matchDao.getSeasonList();
         }
+    }
+
+    /**按日期每日比赛**/
+    public ResponseUnit getMatchByDay(String season, String month) {
+        ResponseUnit data = new ResponseUnit();
+        ArrayList<LinkedHashMap<String,Object>> res = new ArrayList<>();
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            MatchDao matchDao = sqlSession.getMapper(MatchDao.class);
+            ArrayList<String> dayList = matchDao.getDayListByMonth(season,month);
+            if(dayList.size()==0) {
+                data.setMessage("该月份没有比赛,显示最近比赛");
+                dayList =  matchDao.getDayByLastMonth(season);
+            }
+            else {
+                data.setMessage("当月的比赛已显示");
+            }
+        //    System.out.println(dayList);
+            for (String gameDay: dayList
+                 ) {
+                    LinkedHashMap<String,Object> item = new LinkedHashMap<>();
+                    item.put("day",gameDay);
+                    item.put("data",matchDao.getMatchByDay(season,gameDay));
+                    res.add(item);
+            }
+        }
+        data.setCode(200);
+        data.setData(res);
+        return data;
     }
 }

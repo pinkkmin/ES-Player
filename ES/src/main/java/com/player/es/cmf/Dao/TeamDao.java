@@ -2,7 +2,9 @@ package com.player.es.cmf.Dao;
 
 import com.player.es.cmf.Domain.POJO.MatchPojo;
 import com.player.es.Domain.TeamDomain;
+import org.apache.ibatis.annotations.Param;
 
+import java.lang.reflect.Array;
 import java.util.*;
 
 public interface TeamDao {
@@ -27,4 +29,14 @@ public interface TeamDao {
     /// 球队A VS 球队B 历史交手记录
     ArrayList<LinkedHashMap<String,Object>> compareMatch(String homeId,String awayId);
     ArrayList<LinkedHashMap<String,Object>> playerArrayByTeam(String teamId);
+    ////////////////////////////////////////////
+    ////for service
+    ArrayList<String> getAllPlayerId();
+    ArrayList<LinkedHashMap<String,Object>> getServiceRc(String playerId);
+    LinkedHashMap<String,String> getServiceDate(String playerId,String teamId);
+    Boolean isExistService(String playerId);
+    void insertService(@Param("id") String id, @Param("playerId")String playerId,
+                       @Param("teamId")String teamId, @Param("start")String start,
+                       @Param("status")int status);
+    ArrayList<LinkedHashMap<String,Object>> getPlayerService(String playerId);
 }

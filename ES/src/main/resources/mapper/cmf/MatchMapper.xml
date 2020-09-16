@@ -213,4 +213,26 @@
         from match_
         group by match_season order by match_season desc;
     </select>
+    <select id="getDayListByMonth" parameterType="String" resultType="String">
+        select date_format(match_date,'%Y-%m-%d') date
+        from match_
+	    where match_season = #{season} AND date_format(match_date,'%Y-%m') = #{month}
+	    group by date_format(match_date,'%Y-%m-%d')
+	    order by match_date;
+    </select>
+    <select id="getDayByLastMonth" parameterType="String" resultType="String">
+        select date_format(match_date,'%Y-%m-%d') date
+        from match_
+	    where match_season = #{season}  and  now() >= match_date
+	    order by match_date desc limit 15;
+    </select>
+    <select id="getMatchByDay" parameterType="String" resultType="java.util.LinkedHashMap">
+        select match_id matchId,date_format(date_add(match_date,INTERVAL 8 HOUR),'%Y年%m月%d日 %H:%i') date,
+        match_home homeId,match_away awayId, home.team_name homeName,
+        away.team_name awayName, match_status status,home_score homeScore, away_score awayScore
+        from match_,team home ,team away
+	    where match_season = #{season} AND date_format(match_date,'%Y-%m-%d') = #{day}
+	    AND home.team_id = match_home AND away.team_id = match_away
+	    order by match_date desc;
+    </select>
 </mapper>

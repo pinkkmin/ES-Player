@@ -4,7 +4,10 @@ import com.player.es.Domain.MatchDomain;
 import com.player.es.cmf.Domain.Dto.MagMatchDto;
 import com.player.es.cmf.Domain.Dto.QueryMatchDto;
 import com.player.es.cmf.Domain.POJO.MatchDataPojo;
+import jdk.internal.org.objectweb.asm.tree.LdcInsnNode;
 import org.apache.ibatis.annotations.Param;
+import org.apache.poi.hssf.record.chart.LinkedDataRecord;
+import org.springframework.web.servlet.resource.AbstractResourceResolver;
 
 import java.util.*;
 
@@ -63,4 +66,10 @@ public interface MatchDao {
     ArrayList<LinkedHashMap<String,Object>> getTeamGameCountList(String teamId);
     //球队-按赛季分组-比赛场次
     ArrayList<LinkedHashMap<String,Object>> getAllTeamGameCountList();
+    //每月的比赛日
+    ArrayList<String> getDayListByMonth(String season,String month);
+    // 最近一个月的比赛
+    ArrayList<String> getDayByLastMonth(String season);
+    // 赛事-按天算
+    ArrayList<LinkedHashMap<String,Object>> getMatchByDay(String season,String day);
 }

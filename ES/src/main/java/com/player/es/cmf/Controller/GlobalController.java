@@ -50,7 +50,15 @@ public class GlobalController {
 
         return new ResponseUnit(200,"成功",mService.getCurSeason());
     }
-
+   /**get match by everyday*/
+   @RequestMapping("/api/global/matchByDay")
+   public ResponseUnit getMatchByDay(@RequestBody Map<String,String> parse) {
+        String season = parse.get("season");
+        String month = parse.get("month");
+        if(season == null || month==null) return new ResponseUnit(400,"参数错误",null);
+       //System.out.println(season+month);
+       return  mService.getMatchByDay(season,month);
+   }
     /**上传文件处理csv文件*/
     @RequestMapping("/api/global/updateFile")
     /**上传文件的同时 传递JSON参数 使用 RequestPart
@@ -92,5 +100,10 @@ public class GlobalController {
     @RequestMapping("/api/global/register")
     public ResponseUnit register(@RequestBody Map<String,String> map) {
         return teamService.register(map);
+    }
+        @RequestMapping("/api/global/playerService")
+    public ResponseUnit playerService(@RequestBody Map<String,String> map) {
+        String playerId = map.get(("playerId"));
+        return new ResponseUnit(200,"", teamService.getPlayerService(playerId));
     }
 }

@@ -59,9 +59,6 @@ public class PublicController {
         data.put("boundData",teamService.getItemOfAllPlayer(teamId,season,"bound"));
         data.put("blockData",teamService.getItemOfAllPlayer(teamId,season,"block"));
         data.put("stealData",teamService.getItemOfAllPlayer(teamId,season,"steal"));
-        System.out.println(
-                data
-        );
         return new ResponseUnit(200,"成功",data);
     }
 

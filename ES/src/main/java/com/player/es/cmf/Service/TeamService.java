@@ -13,6 +13,7 @@ import com.sun.javafx.scene.control.skin.VirtualFlow;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Service;
 
+import java.io.*;
 import java.math.BigDecimal;
 import java.sql.SQLOutput;
 import java.text.DecimalFormat;
@@ -559,4 +560,75 @@ public class TeamService {
                 return data;
             }
     }
+    String getStatus(int status) {
+        /*
+        *   { value: '首签' },
+            { value: '签约' },
+            { value: '交易' },
+            { value: '解雇' },
+            { value: '退役' },*/
+        switch (status){
+            case 0 : return "自由";
+            case 1 : return "首签";
+            case 2 : return "签约";
+            case 3 : return "交易";
+            case 4 : return "解雇";
+            case 5 : return "退役";
+        }
+        return "自由";
+    }
+    public LinkedHashMap<String,Object> getPlayerService(String playerId){
+        LinkedHashMap<String,Object> res = new LinkedHashMap<>();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-d");
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            TeamDao teamDao = sqlSession.getMapper(TeamDao.class);
+            ArrayList<LinkedHashMap<String,Object>> serviceList = teamDao.getPlayerService(playerId);
+            ArrayList<String> date = new ArrayList<>();
+            for (LinkedHashMap<String,Object> item : serviceList
+                 ) {
+              date.add(simpleDateFormat.format((Date)item.get("start_time")));
+              item.remove("start_time");
+              String status = getStatus((Integer)item.get("value"));
+              item.replace("value",status);
+            }
+            String now = simpleDateFormat.format(new Date());
+            date.add(now);
+            LinkedHashMap<String,Object> item = new LinkedHashMap<>();
+            item.put("value","至今");
+            item.put("name","---");
+            serviceList.add(item);
+            res.put("status",serviceList);
+            res.put("date",date);
+        }
+        return res;
+    }
+    public void test(){
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            TeamDao teamDao = sqlSession.getMapper(TeamDao.class);
+            ArrayList<String> playerIdList =  teamDao.getAllPlayerId();
+            try{
+                String fi = "C:\\Users\\HP\\Desktop\\team.csv";
+                File file = new File(fi);
+                FileWriter fw = new FileWriter(file.getAbsoluteFile());
+                BufferedWriter bw = new BufferedWriter(fw);
+                for (String playerId: playerIdList
+                ) {
+                    ArrayList<LinkedHashMap<String,Object>> serviceList = teamDao.getServiceRc(playerId);
+                    for (LinkedHashMap item: serviceList
+                    ) {
+                        bw.write(playerId+','+(String)item.get("team_id"));
+                        //System.out.println(playerId);
+                        bw.newLine();
+
+                    }
+                    System.out.println("----------------------------------------------------------");
+                }
+                bw.close();
+            }catch(Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
 }
