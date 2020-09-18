@@ -4,16 +4,20 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.player.es.lss.Dao.GlobalDao">
 <!--    获取指定数量用户信息-->
-    <select id="getActualNumUser" parameterType="int" resultType="UserDomain">
-        select * from user_info limit #{num}
+    <select id="getActualNumUser" parameterType="Map" resultType="UserDomain">
+        select * from user_info limit #{startNum},#{endNum}
     </select>
 <!--    获取所有球队信息-->
     <select id="getAllTeam" resultType="TeamDomain">
         select * from team
     </select>
 <!--    根据球队id获取球员信息-->
-    <select id="getTeamPlayer" parameterType="String" resultType="PlayerDomain">
-        select * from player where team_id=#{teamId}
+    <select id="getTeamPlayer" parameterType="Map" resultType="java.util.LinkedHashMap">
+        select player_id playerId,player.team_id teamId,team_name teamName,player_name name,player_number number,
+        player_logo logo,player_position position,player_height height,player_weight weight,player_wingspan wingspan,date_format(player_birth, '%Y-%m-%d') birth,year(now())-year(player_birth) age
+from player,team
+where player.team_id=#{teamId} and team.team_id=#{teamId}
+limit #{startNum},#{endNum}
     </select>
 <!--    获取指定赛事的主客队球员信息-->
     <select id="getMatchPlayer" parameterType="String" resultType="PlayerDomain">
@@ -22,21 +26,34 @@
         )
     </select>
 <!--    获取指定数量球员信息-->
-    <select id="getActualNumPlayer" parameterType="int" resultType="PlayerDomain">
-        select * from player limit #{num}
+    <select id="queryPlayer" parameterType="Map" resultType="Map">
+        select player_id playerId,player_name playerName
+        from player
+        <where>
+            <if test="teamId!=null and teamId!=''">
+                and team_id=#{teamId}
+            </if>
+            <if test="position!=null and position!=''">
+                and player_position=#{position}
+            </if>
+            <if test="name!=num and name!=''">
+                and player_name=#{name}
+            </if>
+        </where>
+        limit #{startNum},#{endNum}
     </select>
 <!--    获取所有球队球员-按球队分组-->
 <!--    获取所有球队id和姓名-->
     <select id="getAllTeamId" resultType="java.util.LinkedHashMap">
-        select team_id, team_name from team
+        select team_id teamId, team_name teamName from team
     </select>
 <!--    根据球队分组获取球员姓名和id-->
     <select id="getTeamPlayerId" parameterType="String" resultType="java.util.LinkedHashMap">
-        select player_id, player_name from player where team_id=#{teamId}
+        select player_id playerId, player_name playerName from player where team_id=#{teamId}
     </select>
 <!--    获取指定数量通知数量-->
-    <select id="getActualNumNotice" parameterType="int" resultType="NoticeDomain">
-        select * from notice limit #{num}
+    <select id="getActualNumNotice" parameterType="Map" resultType="NoticeDomain">
+        select * from notice limit #{startNum},#{endNum}
     </select>
 <!--    根据球队id获取球队名-->
     <select id="getActualTeamName" parameterType="String" resultType="String">
@@ -49,5 +66,21 @@
 <!--    根据队员id获取playerName-->
     <select id="getActualPlayerName" parameterType="String" resultType="String">
         select player_name from player where player_id=#{playerId}
+    </select>
+<!--    获取用户数量-->
+    <select id="getUserNum" resultType="int">
+        select count(user_id) from user_info
+    </select>
+<!--    获取球队球员总量-->
+    <select id="getTeamPlayerNum" parameterType="String" resultType="int">
+        select count(player_id) from player where team_id=#{teamId}
+    </select>
+<!--    获取球员总量-->
+    <select id="getPlayerNum" resultType="int">
+        select count(player_id) from player
+    </select>
+<!--    获取通知总量-->
+    <select id="getNoticeNum" resultType="int">
+        select count(notice_id) from notice
     </select>
 </mapper>

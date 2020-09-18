@@ -22,9 +22,9 @@ public class LGlobalController {
 //    后台管理：返回指定数量用户列表
     @RequestMapping("/userList")
     public ResponseUnit getUserList(@RequestBody HashMap<String, Integer> hashMap){
-        int num = hashMap.get("pageSize")*hashMap.get("page");
-
-        return ResponseUnit.succ(200, "返回成功", globalService.getActualNumUser(num));
+        int startNum = hashMap.get("page")*hashMap.get("pageSize");
+        int endNum = startNum+hashMap.get("pageSize");
+        return ResponseUnit.succ(200, "返回成功", globalService.getActualNumUser(startNum,endNum));
     }
 
 //    返回所有球队信息列表
@@ -35,9 +35,11 @@ public class LGlobalController {
 
 //    返回特定球队-所有球员列表
     @RequestMapping("/playerList")
-    public ResponseUnit getTeamPlayer(@RequestBody HashMap<String, String> hashMap){
-        String teamId = hashMap.get("teamId");
-        return ResponseUnit.succ(200, "获取成功", globalService.getTeamPlayer(teamId));
+    public ResponseUnit getTeamPlayer(@RequestBody HashMap<String, Object> hashMap){
+        int startNum = (int)hashMap.get("page")*(int)hashMap.get("pageSize");
+        int endNum = startNum+(int)hashMap.get("pageSize");
+        String teamId = hashMap.get("teamId").toString();
+        return ResponseUnit.succ(200, "获取成功", globalService.getTeamPlayer(teamId,startNum,endNum));
     }
 
 //    返回指定赛事主客队球员信息
@@ -53,17 +55,21 @@ public class LGlobalController {
     }
 
 //    返回指定数量的球员id和姓名
-    @RequestMapping("/allPlayerList")
-    public ResponseUnit getAllPlayerList(@RequestBody HashMap<String, Integer> hashMap){
-        int num = hashMap.get("pageSize")*hashMap.get("page");
-        return ResponseUnit.succ(200,"获取成功", globalService.getAllPlayerList(num));
+    @RequestMapping("/queryPlayerList")
+    public ResponseUnit queryPlayerList(@RequestBody HashMap<String, Object> hashMap){
+        int startNum = (int)hashMap.get("page")*(int)hashMap.get("pageSize");
+        int endNum = startNum+(int)hashMap.get("pageSize");
+        hashMap.put("startNum",startNum );
+        hashMap.put("endNum",endNum);
+        return ResponseUnit.succ(200,"获取成功", globalService.queryPlayerList(hashMap));
     }
 
 //    获取所有球队-所有公告
     @RequestMapping("/allNotices")
     public ResponseUnit getAllNotices(@RequestBody HashMap<String, Integer> hashMap){
-        int num = hashMap.get("page")*hashMap.get("pageSize");
-        return ResponseUnit.succ(200, "获取成功",globalService.getAllNotices(num));
+        int startNum = (int)hashMap.get("page")*(int)hashMap.get("pageSize");
+        int endNum = startNum+(int)hashMap.get("pageSize");
+        return ResponseUnit.succ(200, "获取成功",globalService.getAllNotices(startNum,endNum));
     }
 
 //

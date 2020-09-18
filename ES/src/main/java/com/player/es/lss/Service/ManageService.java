@@ -13,6 +13,7 @@ import com.sun.corba.se.impl.encoding.BufferManagerReadGrow;
 import net.sf.saxon.expr.Component;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Service;
+import sun.awt.image.ImageWatched;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -20,25 +21,23 @@ import java.util.*;
 @Service
 public class ManageService {
     //    后台管理-修改用户信息
-    public boolean editUser(HashMap<String, Object> hashMap) {
+    public UserPojo editUser(HashMap<String, Object> hashMap) {
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
             ManageDao manageDao = sqlSession.getMapper(ManageDao.class);
-
-            UserDto userDto = new UserDto();
-            userDto.setUserId(hashMap.get("userId").toString());
-            userDto.setRole((int) hashMap.get("type"));
-//            将object转化为map类型
-            @SuppressWarnings("unchecked")
-            Map<String, String> teamHash = (Map<String, String>) hashMap.get("team");
-            userDto.setTeamId(teamHash.get("teamId"));
-            userDto.setUserName(hashMap.get("userName").toString());
-            userDto.setUserEmail(hashMap.get("email").toString());
-            int work = manageDao.editUser(userDto);
-            if (work > 0) {
+            boolean status = manageDao.editUser(hashMap);
+            if(status){
                 sqlSession.commit();
-                return true;
+                UserDomain userDomain = manageDao.getUserDomainByUserId(hashMap.get("userId").toString());
+                UserPojo userPojo = new UserPojo(userDomain.getUserID(),userDomain.getUserName(),userDomain.getEmail(),userDomain.getRole(),userDomain.getTeamId(),manageDao.getTeamName(userDomain.getTeamId()));
+                return userPojo;
             }
-            return false;
+            else{
+                return null;
+            }
+////            将object转化为map类型
+//            @SuppressWarnings("unchecked")
+//            Map<String, String> teamHash = (Map<String, String>) hashMap.get("team");
+
         }
     }
 //    后台：查找用户信息
@@ -46,10 +45,12 @@ public class ManageService {
         try(SqlSession sqlSession=MybatisConfig.getSqlSession()){
             ManageDao manageDao=sqlSession.getMapper(ManageDao.class);
             LinkedHashMap<String, Object> linkedHashMap=new LinkedHashMap<>();
-            int num=(int)hashMap.get("pageSize");
+            int startNum=(int)hashMap.get("pageSize")*(int)hashMap.get("page");
+            int endNum = startNum+(int)hashMap.get("pageSize");
             hashMap.remove("page");
             hashMap.remove("pageSize");
-            hashMap.put("num",num);
+            hashMap.put("startNum",startNum);
+            hashMap.put("endNum",endNum);
 //            将传入的“”改为null
             for(String key:hashMap.keySet()){
                 if(hashMap.get(key).toString().length()==0){
@@ -61,7 +62,7 @@ public class ManageService {
             }
             List<UserDomain> userDomains=manageDao.queryUser(hashMap);
             System.out.println(userDomains);
-            linkedHashMap.put("count",userDomains.size());
+            linkedHashMap.put("count",manageDao.getQueryUserNum(hashMap));
             List<Object> list=new LinkedList<>();
             for(UserDomain userDomain:userDomains){
                 UserPojo userPojo=new UserPojo(userDomain.getUserID(),userDomain.getUserName(),userDomain.getEmail(),userDomain.getRole(),userDomain.getTeamId(),manageDao.getTeamName(userDomain.getTeamId()));
@@ -149,8 +150,10 @@ public class ManageService {
         try(SqlSession sqlSession=MybatisConfig.getSqlSession()){
             ManageDao manageDao=sqlSession.getMapper(ManageDao.class);
             GlobalDao globalDao=sqlSession.getMapper(GlobalDao.class);
-            hashMap.remove("page");
+            hashMap.put("startNum",(int)hashMap.get("page")*(int)hashMap.get("pageSize"));
+            hashMap.put("endNum",(int)hashMap.get("pageSize")+(int)hashMap.get("startNum"));
             List<NoticeDomain> noticeDomains=manageDao.queryNotice(hashMap);
+            System.out.println(noticeDomains);
             List<Object> list=new LinkedList<>();
             for(NoticeDomain noticeDomain:noticeDomains){
                 NoticePojo noticePojo=new NoticePojo(noticeDomain.getNoticeId(),noticeDomain.getAuthId(),globalDao.getActualUserName(noticeDomain.getAuthId()),
@@ -160,10 +163,38 @@ public class ManageService {
                 list.add(noticePojo);
             }
             LinkedHashMap<String,Object> linkedHashMap=new LinkedHashMap<>();
-            linkedHashMap.put("count",noticeDomains.size());
+            linkedHashMap.put("count",manageDao.getQueryNoticeNum(hashMap));
             linkedHashMap.put("data",list);
             return linkedHashMap;
 
+        }
+    }
+
+//    后台管理：查询service记录，根据teamId
+    public LinkedHashMap<String,Object> getServiceByTeamId(HashMap<String,Object> hashMap){
+        try(SqlSession sqlSession = MybatisConfig.getSqlSession()){
+            ManageDao manageDao = sqlSession.getMapper(ManageDao.class);
+            hashMap.put("startNum",(int)hashMap.get("page")*(int)hashMap.get("pageSize"));
+            hashMap.put("endNum",(int)hashMap.get("startNum")+(int)hashMap.get("pageSize"));
+            List<Object> list = manageDao.getServiceByTeamId(hashMap);
+            LinkedHashMap<String,Object> linkedHashMap = new LinkedHashMap<>();
+            linkedHashMap.put("count",manageDao.getServiceByTeamIdNum(hashMap));
+            linkedHashMap.put("data",manageDao.getServiceByTeamId(hashMap));
+            return linkedHashMap;
+        }
+    }
+
+//    后台管理：查询效力记录
+    public LinkedHashMap<String,Object> queryService(HashMap<String,Object> hashMap){
+        try(SqlSession sqlSession = MybatisConfig.getSqlSession()){
+            ManageDao manageDao = sqlSession.getMapper(ManageDao.class);
+            hashMap.put("startNum",(int)hashMap.get("page")*(int)hashMap.get("pageSize"));
+            hashMap.put("endNum",(int)hashMap.get("startNum")+(int)hashMap.get("pageSize"));
+            List<Object> list =manageDao.queryService(hashMap);
+            LinkedHashMap<String,Object> linkedHashMap = new LinkedHashMap<>();
+            linkedHashMap.put("count",manageDao.getQueryServiceNum(hashMap));
+            linkedHashMap.put("data",manageDao.queryService(hashMap));
+            return linkedHashMap;
         }
     }
 }

@@ -1,16 +1,28 @@
 package com.player.es.lss.Service;
 
+import cn.hutool.db.ds.simple.SimpleDataSource;
 import com.player.es.Config.MybatisConfig;
 import com.player.es.lss.Dao.UserDao;
 import com.player.es.Domain.UserDomain;
 import org.apache.catalina.User;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Service;
+import sun.awt.image.ImageWatched;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 @Service
 public class UserService {
+    public LinkedHashMap<String,Object> getUserInformation(String userId){
+        try(SqlSession sqlSession=MybatisConfig.getSqlSession()){
+            UserDao userDao = sqlSession.getMapper(UserDao.class);
+            return userDao.getUserInformation(userId);
+        }
+    }
+
     public UserDomain getByUserID(String userID) {
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
             UserDao userDao = sqlSession.getMapper(UserDao.class);
@@ -64,6 +76,24 @@ public class UserService {
         else{
             sqlSession.close();
             return false;
+        }
+    }
+
+//    用户注册
+    public LinkedHashMap<String,Object> userCheckIn(HashMap<String,Object> hashMap){
+        try(SqlSession sqlSession = MybatisConfig.getSqlSession()){
+            UserDao userDao = sqlSession.getMapper(UserDao.class);
+//            使用当前时间+ur生成userId
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyMMddHHmmssS");
+            String userId = "ur"+simpleDateFormat.format(new Date());
+            hashMap.put("userId",userId);
+            boolean status = userDao.register(hashMap);
+            if(status){
+                return userDao.getUserInformation(userId);
+            }
+            else{
+                return null;
+            }
         }
     }
 }

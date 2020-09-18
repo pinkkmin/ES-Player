@@ -21,7 +21,22 @@
                 and user_email==#{email}
             </if>
         </where>
-        limit #{num}
+        limit #{startNum},#{endNum}
+    </select>
+<!--    后台管理：获取查询到的用户的总量-->
+    <select id="getQueryUserNum" parameterType="Map" resultType="int">
+        select count(user_id) from user_info
+        <where>
+            <if test="userName!=null">
+                and user_info.user_name=#{userName}
+            </if>
+            <if test="userType!=null">
+                and role=#{userType}
+            </if>
+            <if test="email!=null">
+                and user_email==#{email}
+            </if>
+        </where>
     </select>
 <!--    后台管理：根据teamId得到teamName-->
     <select id="getTeamName" parameterType="String" resultType="String">
@@ -50,7 +65,7 @@
         update notice set auth_id=#{authId},player_id=#{playerId},home_id=#{homeId},away_id=#{awayId},notice_date=#{noticeDate},
         title=#{title},content=#{content}
     </update>
-<!--    后台管理：查询公告-->
+<!--    后台管理：查询公告-返回一部分公告-->
     <select id="queryNotice" parameterType="Map" resultType="NoticeDomain">
         select * from notice
         <where>
@@ -61,6 +76,65 @@
                 and player_name=#{playerName}
             </if>
         </where>
-        limit #{pageSize}
+        limit #{startNum},#{endNum}
+    </select>
+<!--    后台管理：获取查询到公告的总数-->
+    <select id="getQueryNoticeNum" parameterType="Map" resultType="int">
+        select count(notice_id) from notice
+        <where>
+            <if test="teamId!='' and teamId != null">
+                and home_id=#{teamId} or away_id=#{teamId}
+            </if>
+            <if test="playerName!=null and playerName!=''">
+                and player_name=#{playerName}
+            </if>
+        </where>
+    </select>
+<!--    后台管理：根据id获取userDomain-->
+    <select id="getUserDomainByUserId" parameterType="String" resultType="UserDomain">
+        select * from user_info where user_id=#{userId}
+    </select>
+<!--    后台管理：根据TeamId获取Service-->
+    <select id="getServiceByTeamId" parameterType="Map" resultType="java.util.LinkedHashMap">
+        select service.player_id playerId,player_name,start_status status,date_format(start_time,"%Y-%m-%d") date
+        from service,player
+        where player.player_id=service.player_id and service.team_id=#{teamId}
+        limit #{startNum},#{endNum}
+    </select>
+<!--    后台管理：查询根据teamId获取service的总量-->
+    <select id="getServiceByTeamIdNum" parameterType="Map" resultType="int">
+        select count(server_id)
+        from service
+        where team_id=#{teamId}
+    </select>
+<!--    后台管理：查询service-返回一部分-->
+    <select id="queryService" parameterType="Map" resultType="java.util.LinkedHashMap">
+        select server_id serviceId,service.player_id playerId,player_name playerName,service.team_id teamId,team_name teamName,start_status status,date_format(start_time,"%Y-%m-%d") date
+        from service,team,player
+        <where>
+            <if test="teamId!=null and teamId!=''">
+                and service.team_id=#{teamId}
+            </if>
+            <if test="playerId!=null and playerId!=''">
+                and service.player_id=#{playerId}
+            </if>
+            <if test="1!=null">
+                and service.player_id=player.player_id and service.team_id=team.team_id
+            </if>
+        </where>
+        limit #{startNum},#{endNum}
+    </select>
+<!--    后台管理：获取查询service的总量-->
+    <select id="getQueryServiceNum" parameterType="Map" resultType="int">
+        select count(server_id)
+        from service
+        <where>
+            <if test="teamId!=null and teamId!=''">
+                and team_id=#{teamId}
+            </if>
+            <if test="playerId!=null and playerId!=''">
+                and player_id=#{playerId}
+            </if>
+        </where>
     </select>
 </mapper>

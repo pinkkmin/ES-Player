@@ -5,18 +5,20 @@ import com.player.es.Domain.PlayerDomain;
 import com.player.es.Domain.TeamDomain;
 import com.player.es.Domain.UserDomain;
 
+import java.util.Map;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 
 public interface GlobalDao {
     //    获取指定数量的用户信息
-    List<UserDomain> getActualNumUser(int num);
+    List<UserDomain> getActualNumUser(Map<String,Integer> map);
 
     //    获取所有球队信息
     List<TeamDomain> getAllTeam();
 
     //    根据球队id获取球队球员信息
-    List<PlayerDomain> getTeamPlayer(String teamId);
+    List<HashMap<String,Object>> getTeamPlayer(Map<String,Object> map);
 
     //    获取指定赛事的主客队球员信息
     List<PlayerDomain> getMatchPlayer(String matchId);
@@ -27,10 +29,10 @@ public interface GlobalDao {
     List<LinkedHashMap<String, Object>> getTeamPlayerId(String teamId);
 
     //    获取指定数量球员信息
-    List<PlayerDomain> getActualNumPlayer(int num);
+    List<Object> queryPlayer(Map<String,Object> map);
 
-    //    获取所有指定数量公告信息???
-    List<NoticeDomain> getActualNumNotice(int num);
+    //    获取所有指定数量公告信息
+    List<NoticeDomain> getActualNumNotice(Map<String,Integer> map);
 
     //  根据球队id获取球队名
     String getActualTeamName(String teamId);
@@ -40,4 +42,16 @@ public interface GlobalDao {
 
     //  根据队员id获取playerName
     String getActualPlayerName(String playerId);
+
+//    获取系统用户总量
+    int getUserNum();
+
+//    获取球队球员总量
+    int getTeamPlayerNum(String teamId);
+
+//    获取球员总量
+    int getPlayerNum();
+
+//    获取通知总量
+    int getNoticeNum();
 }

@@ -23,8 +23,7 @@ public class ManageController {
 //    修改用户信息
     @RequestMapping("editUser")
     public ResponseUnit editUser(@RequestBody HashMap<String, Object> hashMap){
-        manageService.editUser(hashMap);
-        return ResponseUnit.succ("");
+        return ResponseUnit.succ(200,"修改成功", manageService.editUser(hashMap));
     }
 
 //    后台管理：查找用户信息
@@ -74,9 +73,21 @@ public class ManageController {
         return ResponseUnit.succ(200,"查找成功",manageService.queryNotice(hashMap));
     }
 
-//    后台管理：发布公告
+//    后台管理：发布公告？？不完整
     @RequestMapping("publish")
     public ResponseUnit publish(@RequestBody NoticeDomain noticeDomain){
+        return null;
+    }
 
+//    后台管理：查询service表中与team_id对应的数据-按时间排序
+    @RequestMapping("service")
+    public ResponseUnit getServiceByTeamId(@RequestBody HashMap<String,Object> hashMap){
+        return ResponseUnit.succ(200,"查询成功",manageService.getServiceByTeamId(hashMap));
+    }
+
+//     后台管理：查询Service记录
+    @RequestMapping("queryService")
+    public ResponseUnit queryService(@RequestBody HashMap<String,Object> hashMap){
+        return ResponseUnit.succ(200,"查询成功",manageService.queryService(hashMap));
     }
 }

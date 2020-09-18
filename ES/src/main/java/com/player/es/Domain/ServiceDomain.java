@@ -11,6 +11,4 @@ public class ServiceDomain {
     String teamId;
     Date startTime;
     int startStatus;
-    Date endTime;
-    int endStatus;
 }

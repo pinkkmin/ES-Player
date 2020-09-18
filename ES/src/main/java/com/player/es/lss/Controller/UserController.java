@@ -48,9 +48,9 @@ public class UserController {
     }
 //  -------------------------------------------接口1：我的信息获取---------------------------------------
     @RequiresAuthentication
-    @GetMapping("/api/user/info")
-    public ResponseUnit myInformation(){
-        return ResponseUnit.succ(new  UserDomain());
+    @PostMapping("/api/user/info")
+    public ResponseUnit myInformation(@RequestBody HashMap<String,String> hashMap){
+        return ResponseUnit.succ(200,"获取成功",userService.getUserInformation(hashMap.get("userId")));
     }
 //-------------------------------------------接口2：修改密码---------------------------------------
     @RequestMapping("/api/user/password")
