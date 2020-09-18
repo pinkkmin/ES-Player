@@ -1,19 +1,14 @@
 package com.player.es.cmf.Controller;
 
 import com.player.es.Config.MybatisConfig;
-import com.player.es.Utils.EmailUtils;
-import com.player.es.Utils.FileUtils;
 import com.player.es.Utils.ResponseUnit;
 import com.player.es.cmf.Service.MatchService;
 import com.player.es.cmf.Service.TeamService;
-import com.sun.org.apache.regexp.internal.RE;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
