@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--绑定一个DAO接口-->
+<mapper namespace="com.player.es.cmf.Dao.KeyDao">
+<select id="getKeyNumber" parameterType="String" resultType="java.util.LinkedHashMap">
+        select * from key_number
+        where email = #{email};
+    </select>
+<insert id="insertKey">
+        insert  into key_number(email,key_,key_time)
+        values(#{email},#{keyNumber},#{keyTime});
+    </insert>
+<delete id="deleteKey" parameterType="String" >
+        delete from key_number
+        where email = #{email};
+ </delete>
+</mapper>

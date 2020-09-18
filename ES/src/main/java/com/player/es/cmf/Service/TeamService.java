@@ -1,10 +1,9 @@
 package com.player.es.cmf.Service;
 
+import com.player.es.Utils.EmailUtils;
 import com.player.es.Utils.GlobalConstDataUtils;
-import com.player.es.cmf.Dao.MatchDao;
-import com.player.es.cmf.Dao.MatchDataDao;
-import com.player.es.cmf.Dao.PlayerDao;
-import com.player.es.cmf.Dao.TeamDao;
+import com.player.es.Utils.ResponseUnit;
+import com.player.es.cmf.Dao.*;
 import com.player.es.cmf.Domain.POJO.MatchPojo;
 import com.player.es.cmf.Domain.POJO.PieItemPojo;
 import com.player.es.cmf.Domain.POJO.SortItemPojo;
@@ -14,7 +13,9 @@ import com.sun.javafx.scene.control.skin.VirtualFlow;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Service;
 
+import java.io.*;
 import java.math.BigDecimal;
+import java.sql.SQLOutput;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -25,6 +26,7 @@ public class TeamService {
     //utils
     private GlobalConstDataUtils globalConstData;
     private DecimalFormat df = new DecimalFormat("#.0");
+    EmailUtils emailUtils = new EmailUtils();
 
     public TeamService() {
         globalConstData = new GlobalConstDataUtils();
@@ -120,7 +122,7 @@ public class TeamService {
                     }
                     i++;
                 }
-                item.put("month",curYear+"-"+curMonth);
+                item.put("month",curYear+"年"+curMonth);
                 item.put("data",matchItem);
                 data.add(item);
             }
@@ -160,22 +162,27 @@ public class TeamService {
             return new LinkedHashMap<>();
         }
     }
+    //***********************************
+    public LinkedHashMap<String,Object> getMatchListData(String teamId,ArrayList<LinkedHashMap<String,Object>> matchList){
+        LinkedHashMap<String,Object> data = new LinkedHashMap<>();
+        ArrayList<Integer> getData = new ArrayList<>(), lostData = new ArrayList<>();
+        ArrayList<String> date = new ArrayList<>();
+        Integer win = getLastMatchData(teamId,matchList,getData,lostData,date);
+        data.put("win",win);
+        data.put("fail",matchList.size()-win);
+        data.put("getData",getData);
+        data.put("lostData",lostData);
+        data.put("date",date);
+        return data;
+    }
     public LinkedHashMap<String,Object> getLastMatchList(String teamId,String season,ArrayList<LinkedHashMap<String,Object>> matchList){
-            LinkedHashMap<String,Object> data = getTeamSortInfo(teamId,season);
-            ArrayList<Integer> getData = new ArrayList<>(), lostData = new ArrayList<>();
-            ArrayList<String> date = new ArrayList<>();
-            Integer win = getLastMatchData(teamId,matchList,getData,lostData,date);
-            data.put("win",win);
-            data.put("fail",matchList.size()-win);
-            data.put("getData",getData);
-            data.put("lostData",lostData);
-            data.put("date",date);
-            return data;
+        LinkedHashMap<String,Object> data = getTeamSortInfo(teamId,season);
+        data.putAll(getMatchListData(teamId, matchList));
+        return data;
 
     }
     public LinkedHashMap<String,Object> lastSevenMatch(String teamId,String season) {
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
-
             TeamDao teamDao = sqlSession.getMapper(TeamDao.class);
             ArrayList<LinkedHashMap<String,Object>> matchList = teamDao.lastSevenMatch(teamId);
             return getLastMatchList(teamId,season,matchList);
@@ -188,6 +195,18 @@ public class TeamService {
             return getLastMatchList(teamId,season,matchList);
         }
     }
+    public LinkedHashMap<String,Object> compareTeamMatch(String homeId,String awayId,String season) {
+        LinkedHashMap<String,Object> data  = new LinkedHashMap<>();
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            TeamDao teamDao = sqlSession.getMapper(TeamDao.class);
+            ArrayList<LinkedHashMap<String,Object>> seasonMatch = teamDao.compareMatchByTeam(homeId,awayId,season);
+            ArrayList<LinkedHashMap<String,Object>> passMatch = teamDao.compareMatch(homeId,awayId);
+            data.put("season",getMatchListData(homeId,seasonMatch));
+            data.put("allMatch",getMatchListData(homeId,passMatch));
+        }
+        return data;
+    }
+
     /***compare team API**/
     ArrayList<TeamComparePojo> getCompareDataOfTeam(String homeId,String awayId,String season) {
         try(SqlSession sqlSession = MybatisConfig.getSqlSession()) {
@@ -211,6 +230,7 @@ public class TeamService {
         }
         return count;
     }
+    /// API COMPARE TEAM
     public LinkedHashMap<String,Object> compareTeam(String homeId,String awayId,String season) {
         LinkedHashMap<String,Object> data = new LinkedHashMap<>(),baseLineData = new LinkedHashMap<>();
         LinkedHashMap<String,Object> home = getTeamSortInfo(homeId,season),away = getTeamSortInfo(awayId,season);
@@ -225,7 +245,7 @@ public class TeamService {
         data.put("away",away);
         data.put("radarData",radarData);
         baseLineData.put("home",lastSevenMatch(homeId,season));
-        baseLineData.put("away",lastSeasonMatch(awayId,season));
+        baseLineData.put("away",lastSevenMatch(awayId,season));
         data.put("baseLineData",baseLineData);
         data.put("barData",barData);
         return data;
@@ -423,7 +443,9 @@ public class TeamService {
             seasonList.add(dataList.get(i).get("season").toString());
             for(int j = 0;j<7;j++) {
                 String name = nameList.get(j);
-                Double value = getDoubleData(dataList.get(i).get(name),gameList.get(i).get("game"));
+                long game = (Long)gameList.get(i).get("game");
+                if(opt == 1) game *= 2;
+                Double value = getDoubleData(dataList.get(i).get(name),game);
                 tableItem.put(name,value);
                 valueList.get(j).add(value);
             }
@@ -457,4 +479,156 @@ public class TeamService {
         }
 
     }
+    public ArrayList<LinkedHashMap<String,Object>> getPlayerArray(String teamId, String season) {
+        ArrayList<LinkedHashMap<String,Object>> data = new ArrayList<>();
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            TeamDao teamDao = sqlSession.getMapper(TeamDao.class);
+            PlayerDao playerDao = sqlSession.getMapper(PlayerDao.class);
+            data = teamDao.playerArrayByTeam(teamId);
+            SimpleDateFormat smd = new SimpleDateFormat("yyyy");
+            int nowYear =   Integer.valueOf(smd.format(new Date()));
+            for (LinkedHashMap<String,Object> item:data
+                 ) {
+                String playerId = (String)item.get("playerId");
+                Double age = (Double)item.get("age");
+                if(age.intValue() == nowYear) {
+                    item.put("age","--");
+                }
+            //    System.out.println(playerId);
+                LinkedHashMap<String,Object> avgData = playerDao.getSeasonAvgByEn(playerId,season);
+               // System.out.println(avgData);
+                item.putAll(avgData);
+//               System.out.println(item);
+            }
+        }
+        return data;
+    }
+    ////////////////////////////////////////////////////////////////////////////////////////
+    public ResponseUnit getKeyNumber(String email,int type) {
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            int keyNumber = (int) (Math.random() * (999999 - 100001)) + 100001;
+            boolean sign = emailUtils.toSend(email,keyNumber,type);
+            if(sign) {
+                KeyDao keyDao = sqlSession.getMapper(KeyDao.class);
+                keyDao.deleteKey(email);
+                sqlSession.commit();
+                keyDao.insertKey(email, keyNumber, new Date());
+                sqlSession.commit();
+                return new ResponseUnit(200,"验证码已发送,请注意查收",null);
+            }
+        }
+        return new ResponseUnit(400,"验证码发送失败",null);
+    }
+    public ResponseUnit keyNumberRight(Map<String,String> map) {
+        String email = map.get("email");
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            KeyDao keyDao = sqlSession.getMapper(KeyDao.class);
+            LinkedHashMap<String, Object> res = keyDao.getKeyNumber(email);
+            String resEmail = (String) res.get("email");
+            if (null != resEmail) { // 用户存在
+                Date keyTime = (Date) res.get("key_time");
+                int keyNumber = (Integer) res.get("key_");
+                int kn = Integer.valueOf(map.get("keyNumber"));
+                Long start = keyTime.getTime() + 300900;
+                Long now = new Date().getTime();
+                if (keyNumber != kn) {
+                    return new ResponseUnit(400, "验证码错误", null);
+                }
+                if (now <= start) {
+                    keyDao.deleteKey(email);
+                    return new ResponseUnit(200, "密码已重置", null);
+                } else {
+                    return new ResponseUnit(400, "验证码失效", null);
+                }
+            } else {// 用户不存在
+                return new ResponseUnit(400, "验证码已过期", null);
+            }
+        }
+    }
+    public ResponseUnit resetPwd(Map<String,String> map) {
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            ResponseUnit data =  keyNumberRight(map);
+            return data;
+        }
+    }
+    public ResponseUnit register(Map<String,String> map) {
+            try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+                ResponseUnit data =  keyNumberRight(map);
+                if(data.getCode()==200){
+                    System.out.println("注册成功");
+                }
+                return data;
+            }
+    }
+    String getStatus(int status) {
+        /*
+        *   { value: '首签' },
+            { value: '签约' },
+            { value: '交易' },
+            { value: '解雇' },
+            { value: '退役' },*/
+        switch (status){
+            case 0 : return "自由";
+            case 1 : return "首签";
+            case 2 : return "签约";
+            case 3 : return "交易";
+            case 4 : return "解雇";
+            case 5 : return "退役";
+        }
+        return "自由";
+    }
+    public LinkedHashMap<String,Object> getPlayerService(String playerId){
+        LinkedHashMap<String,Object> res = new LinkedHashMap<>();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-d");
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            TeamDao teamDao = sqlSession.getMapper(TeamDao.class);
+            ArrayList<LinkedHashMap<String,Object>> serviceList = teamDao.getPlayerService(playerId);
+            ArrayList<String> date = new ArrayList<>();
+            for (LinkedHashMap<String,Object> item : serviceList
+                 ) {
+              date.add(simpleDateFormat.format((Date)item.get("start_time")));
+              item.remove("start_time");
+              String status = getStatus((Integer)item.get("value"));
+              item.replace("value",status);
+            }
+            String now = simpleDateFormat.format(new Date());
+            date.add(now);
+            LinkedHashMap<String,Object> item = new LinkedHashMap<>();
+            item.put("value","至今");
+            item.put("name","---");
+            serviceList.add(item);
+            res.put("status",serviceList);
+            res.put("date",date);
+        }
+        return res;
+    }
+    public void test(){
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            TeamDao teamDao = sqlSession.getMapper(TeamDao.class);
+            ArrayList<String> playerIdList =  teamDao.getAllPlayerId();
+            try{
+                String fi = "C:\\Users\\HP\\Desktop\\team.csv";
+                File file = new File(fi);
+                FileWriter fw = new FileWriter(file.getAbsoluteFile());
+                BufferedWriter bw = new BufferedWriter(fw);
+                for (String playerId: playerIdList
+                ) {
+                    ArrayList<LinkedHashMap<String,Object>> serviceList = teamDao.getServiceRc(playerId);
+                    for (LinkedHashMap item: serviceList
+                    ) {
+                        bw.write(playerId+','+(String)item.get("team_id"));
+                        //System.out.println(playerId);
+                        bw.newLine();
+
+                    }
+                    System.out.println("----------------------------------------------------------");
+                }
+                bw.close();
+            }catch(Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
 }

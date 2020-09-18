@@ -40,6 +40,9 @@
                 <property name="url" value="${url}"/>
                 <property name="username" value="${username}"/>
                 <property name="password" value="${password}"/>
+                <!--  cmf add               -->
+                <property name="poolPingQuery" value="SELECT NOW()" />
+                <property name="poolPingEnabled" value="true" />
             </dataSource>
         </environment>
     </environments>
@@ -50,6 +53,7 @@
         <mapper resource="mapper/cmf/PlayerMapper.xml"/>
         <mapper resource="mapper/cmf/MatchMapper.xml"/>
         <mapper resource="mapper/cmf/MatchDataMapper.xml"/>
+        <mapper resource="mapper/cmf/KeyNumMapper.xml"/>
         <!-- lss mapper.xml -->
         <mapper resource="mapper/lss/UserMapper.xml"/>
         <mapper resource="mapper/lss/NoticeMapper.xml"/>

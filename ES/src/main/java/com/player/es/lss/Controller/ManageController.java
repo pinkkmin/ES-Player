@@ -76,6 +76,7 @@ public class ManageController {
 //    后台管理：发布公告？？不完整
     @RequestMapping("publish")
     public ResponseUnit publish(@RequestBody NoticeDomain noticeDomain){
+<<<<<<< HEAD
         return null;
     }
 
@@ -89,5 +90,8 @@ public class ManageController {
     @RequestMapping("queryService")
     public ResponseUnit queryService(@RequestBody HashMap<String,Object> hashMap){
         return ResponseUnit.succ(200,"查询成功",manageService.queryService(hashMap));
+=======
+    return null;
+>>>>>>> 98806d55f70ad5f4eb0516c8791c048be72044e3
     }
 }

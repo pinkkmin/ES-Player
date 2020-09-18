@@ -14,6 +14,11 @@
         select * from team
         where team_id = #{teamId}
     </select>
+    <select id="getTeamBaseInfo" parameterType="String" resultType="java.util.LinkedHashMap">
+       select team_city city, team_coach coach, team_home home,team_club club,team_status status
+       from team
+    where team_id = #{teamId}
+    </select>
     <select id="getTeamInfoById" parameterType="String" resultType="java.util.LinkedHashMap">
         select team_id teamId, team_name teamName
          from team
@@ -41,7 +46,7 @@
         where match_season = #{season}
         AND (home.team_id = match_home and away.team_id = match_away)
         AND (match_home = #{teamId} OR match_away = #{teamId})
-        order by match_date;
+        order by match_date desc;
     </select>
     <select id="lastSevenMatch" resultType="java.util.LinkedHashMap" parameterType="String">
         select DATE_FORMAT(match_date,'%m-%d') date,match_home,home_score, match_away,away_score
@@ -55,5 +60,58 @@
         where match_season=#{season} AND match_status=1 AND
         match_date  &lt;= NOW() AND (match_home=#{teamId} or match_away=#{teamId})
         order by match_date Desc;
+    </select>
+    <select id="compareMatchByTeam" resultType="java.util.LinkedHashMap" parameterType="String">
+        select DATE_FORMAT(match_date,'%y-%m-%d') date,match_home,home_score, match_away,away_score
+        from match_
+        where match_status=1 AND match_date   &lt;= now() AND match_season = #{season}
+        AND ((match_home=#{homeId} and match_away=#{awayId})
+        OR (match_away=#{homeId} and match_home=#{awayId}))
+        order by match_date Desc;
+    </select>
+    <select id="compareMatch" resultType="java.util.LinkedHashMap" parameterType="String">
+        select DATE_FORMAT(match_date,'%y-%m-%d') date,match_home,home_score, match_away,away_score
+        from match_
+        where match_status=1 AND match_date   &lt;= now()
+        AND ((match_home=#{homeId} and match_away=#{awayId})
+        OR (match_away=#{homeId} and match_home=#{awayId}))
+        order by match_date Desc;
+    </select>
+    <select id="playerArrayByTeam" resultType="java.util.LinkedHashMap" parameterType="String">
+       select player_id playerId , player_name name,player_number number,player_position position,
+        date_format(NOW(),'%Y')-date_format(player_birth,'%Y') age,player_logo logo,
+        player_height height,player_weight weight
+        from player
+        where team_id = #{teamId} and player_servicing = 1 ;
+    </select>
+    <select id="getAllPlayerId" resultType="String" parameterType="String">
+      select player_id from player;
+    </select>
+    <select id="getServiceRc" resultType="java.util.LinkedHashMap" parameterType="String">
+      select distinct p.player_id,t.team_id
+        from player p, match_data md,match_ m,team t
+        where p.player_id =  md.player_id AND p.player_id = #{playerId}
+        AND ((t.team_id = m.match_home and is_home = 1)
+                OR (t.team_id = m.match_away and is_home = 0))
+        AND m.match_id = md.match_id;
+    </select>
+    <select id="getServiceDate" resultType="java.util.LinkedHashMap" parameterType="String">
+      select player_id,date_format(match_date,'%Y-%m-%d') date_,match_season from match_data,match_
+        where player_id = #{playerId}  and (match_home = #{teamId} or match_away = #{teamId})
+        and match_.match_id= match_data.match_id
+        order by match_date limit 1;
+    </select>
+    <select id="isExistService" resultType="Boolean" parameterType="String">
+        select * from service
+        where player_id = #{playerId}
+    </select>
+    <insert id="insertService">
+        insert into service(server_id,player_id,team_id,start_time,start_status)
+        values(#{id},#{playerId},#{teamId},#{start},#{status})
+    </insert>
+    <select id="getPlayerService" parameterType="String" resultType="java.util.LinkedHashMap">
+        select team_name name, start_status value, start_time
+        from service,team
+        where player_id = #{playerId}  and team.team_id = service.team_id;
     </select>
 </mapper>

@@ -5,7 +5,6 @@ import com.player.es.cmf.Domain.Dto.MagMatchDto;
 import com.player.es.cmf.Domain.Dto.QueryMatchDto;
 import com.player.es.cmf.Domain.POJO.MatchDataPojo;
 import org.apache.ibatis.annotations.Param;
-
 import java.util.*;
 
 public interface MatchDao {
@@ -46,13 +45,14 @@ public interface MatchDao {
     ArrayList<LinkedHashMap<String,Object>> getSeasonAllMatch(@Param("season")String season, @Param("page")Integer page, @Param("pageSize")Integer pageSize);
     // 查询赛事
     ArrayList<LinkedHashMap<String,Object>> queryMatch(QueryMatchDto item);
+    int queryMatchCount(QueryMatchDto item);
     // 今天赛事
     ArrayList<LinkedHashMap<String,Object>> todayMatch();
     // 今天以后七场赛事
     ArrayList<LinkedHashMap<String,Object>> sevenMatchAfterToday();
     // 今日之前七场赛事
     ArrayList<LinkedHashMap<String,Object>> sevenMatchBeforeToday();
-
+   //赛季列表
     //****
     //球队-按赛季分组-各项数据总和
     ArrayList<LinkedHashMap<String,Object>> getTeamSeasonSumList(String teamId);
@@ -62,4 +62,10 @@ public interface MatchDao {
     ArrayList<LinkedHashMap<String,Object>> getTeamGameCountList(String teamId);
     //球队-按赛季分组-比赛场次
     ArrayList<LinkedHashMap<String,Object>> getAllTeamGameCountList();
+    //每月的比赛日
+    ArrayList<String> getDayListByMonth(String season,String month);
+    // 最近一个月的比赛
+    ArrayList<String> getDayByLastMonth(String season);
+    // 赛事-按天算
+    ArrayList<LinkedHashMap<String,Object>> getMatchByDay(String season,String day);
 }

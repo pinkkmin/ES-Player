@@ -18,7 +18,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 @RequestMapping("/api/public/")
 @RestController
@@ -57,9 +59,6 @@ public class PublicController {
         data.put("boundData",teamService.getItemOfAllPlayer(teamId,season,"bound"));
         data.put("blockData",teamService.getItemOfAllPlayer(teamId,season,"block"));
         data.put("stealData",teamService.getItemOfAllPlayer(teamId,season,"steal"));
-        System.out.println(
-                data
-        );
         return new ResponseUnit(200,"成功",data);
     }
 
@@ -98,5 +97,6 @@ public class PublicController {
         String  matchId = parse.get("matchId");
         return new ResponseUnit(200,"成功",mService.getMatchInfo(matchId));
     }
+
 
 }

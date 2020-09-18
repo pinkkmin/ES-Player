@@ -8,12 +8,10 @@ import com.player.es.Domain.MatchDomain;
 import com.player.es.Domain.PlayerDomain;
 import com.player.es.Config.MybatisConfig;
 import com.player.es.Domain.MatchDataDomain;
+import com.player.es.cmf.Dao.TeamDao;
 import org.apache.ibatis.session.SqlSession;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -222,6 +220,65 @@ public class InitUtils {
             MatchDao matchDao = sqlSession.getMapper(MatchDao.class);
             if(matchDao.isExist(matchId) == null) return false;
             return true;
+        }
+    }
+    public  void writeService(){
+        try {
+            BufferedReader br = readFile("C:\\Users\\HP\\Desktop\\team.csv");
+            String fi = "C:\\Users\\HP\\Desktop\\info.csv";
+            File file = new File(fi);
+            FileWriter fw = new FileWriter(file.getAbsoluteFile());
+            BufferedWriter bw = new BufferedWriter(fw);
+            try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+                TeamDao teamDao = sqlSession.getMapper(TeamDao.class);
+                String line = br.readLine();
+                String itemList[] =line.split(",");
+                while (line != null) {
+                    String playerId = itemList[0];
+                    String teamId = itemList[1];
+                    LinkedHashMap<String,String> info = teamDao.getServiceDate(playerId,teamId);
+
+                    String date = info.get("date_");
+                    bw.write(playerId+','+teamId+','+date);
+                   // System.out.println(playerId);
+                    bw.newLine();
+                    line = br.readLine();
+                    if(line!=null)
+                    itemList =line.split(",");
+                }
+            }
+            bw.close();
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    public void writeServiceR() {
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            TeamDao teamDao = sqlSession.getMapper(TeamDao.class);
+        try{
+            BufferedReader br = readFile("C:\\Users\\HP\\Desktop\\info.csv");
+            String line = br.readLine();
+            String info[] = line.split(",");
+            Integer id  = 100000;
+            while (line!=null) {
+                String playerId = info[0];
+                String teamId = info[1];
+                String date = info[2];
+                if(teamDao.isExistService(playerId)==null) {
+                    teamDao.insertService(String.valueOf(id),playerId,teamId,date,1);
+                }
+                else{
+                    teamDao.insertService(String.valueOf(id),playerId,teamId,date,2);
+                }
+                id++;
+                line = br.readLine();
+                if(line==null) break;
+                info = line.split(",");
+            }
+            sqlSession.commit();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
         }
     }
 }
