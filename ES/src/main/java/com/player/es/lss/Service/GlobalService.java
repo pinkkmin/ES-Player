@@ -4,6 +4,7 @@ import com.player.es.Config.MybatisConfig;
 import com.player.es.Domain.NoticeDomain;
 import com.player.es.Domain.PlayerDomain;
 import com.player.es.Domain.TeamDomain;
+import com.player.es.Domain.UserDomain;
 import com.player.es.lss.Dao.GlobalDao;
 import com.player.es.lss.Dao.UserDao;
 import com.player.es.lss.Domain.POJO.NoticePojo;
@@ -101,7 +102,7 @@ public class GlobalService {
                 List<LinkedHashMap<String, Object>> playerIds = globalDao.getTeamPlayerId(linkedHashMap.get("teamId").toString());
                 linkedHashMap.put("data", playerIds);
                 list.add(linkedHashMap);
-            } 
+            }
             return list;
         }
     }

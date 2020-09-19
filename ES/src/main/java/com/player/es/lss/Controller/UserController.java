@@ -7,16 +7,21 @@ import com.player.es.Domain.LoginDto;
 import com.player.es.Domain.UserDomain;
 import com.player.es.lss.Service.UserService;
 import com.player.es.Utils.JwtUtils;
+import com.player.es.shiro.JwtToken;
+import io.jsonwebtoken.Claims;
 import org.apache.commons.collections.map.HashedMap;
 
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpRequest;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -47,10 +52,15 @@ public class UserController {
         return ResponseUnit.succ(test);
     }
 //  -------------------------------------------接口1：我的信息获取---------------------------------------
+    ///PS：cmf 修改了此部分, 获取用户id用于登陆
     @RequiresAuthentication
-    @PostMapping("/api/user/info")
-    public ResponseUnit myInformation(@RequestBody HashMap<String,String> hashMap){
-        return ResponseUnit.succ(200,"获取成功",userService.getUserInformation(hashMap.get("userId")));
+    @GetMapping("/api/user/info")
+    public ResponseUnit myInformation(@RequestHeader ("Authorization") String jwt){
+        System.out.println(jwt);
+        Claims claim = jwtUtils.getClaimByToken(jwt);
+        //获取用户Id
+        String userId = claim.getSubject();
+        return ResponseUnit.succ(200,"获取成功",userService.getUserInformation(userId));
     }
 //-------------------------------------------接口2：修改密码---------------------------------------
     @RequestMapping("/api/user/password")

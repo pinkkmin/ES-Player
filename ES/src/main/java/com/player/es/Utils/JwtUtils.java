@@ -48,6 +48,7 @@ public class JwtUtils {
                     .getBody();
         }catch (Exception e){
             e.printStackTrace();
+
             log.debug("validate is token error ", e);
             return null;
         }
