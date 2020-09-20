@@ -46,22 +46,20 @@ public class ManageService {
             ManageDao manageDao=sqlSession.getMapper(ManageDao.class);
             LinkedHashMap<String, Object> linkedHashMap=new LinkedHashMap<>();
             int startNum=(int)hashMap.get("pageSize")*(int)hashMap.get("page");
-            int endNum = startNum+(int)hashMap.get("pageSize");
+            //int endNum = startNum+(int)hashMap.get("pageSize");
+            //cmf: limit限制条数 不是游标
+            int endNum = (int)hashMap.get("pageSize");
             hashMap.remove("page");
             hashMap.remove("pageSize");
             hashMap.put("startNum",startNum);
             hashMap.put("endNum",endNum);
-//            将传入的“”改为null
+
             for(String key:hashMap.keySet()){
                 if(hashMap.get(key).toString().length()==0){
                     hashMap.put(key,null);
                 }
             }
-            for(String key:hashMap.keySet()){
-                System.out.println("key:"+key+",value:"+hashMap.get(key));
-            }
             List<UserDomain> userDomains=manageDao.queryUser(hashMap);
-            System.out.println(userDomains);
             linkedHashMap.put("count",manageDao.getQueryUserNum(hashMap));
             List<Object> list=new LinkedList<>();
             for(UserDomain userDomain:userDomains){
@@ -151,9 +149,9 @@ public class ManageService {
             ManageDao manageDao=sqlSession.getMapper(ManageDao.class);
             GlobalDao globalDao=sqlSession.getMapper(GlobalDao.class);
             hashMap.put("startNum",(int)hashMap.get("page")*(int)hashMap.get("pageSize"));
-            hashMap.put("endNum",(int)hashMap.get("pageSize")+(int)hashMap.get("startNum"));
+            hashMap.put("endNum",(int)hashMap.get("pageSize"));
             List<NoticeDomain> noticeDomains=manageDao.queryNotice(hashMap);
-            System.out.println(noticeDomains);
+           // System.out.println(noticeDomains);
             List<Object> list=new LinkedList<>();
             for(NoticeDomain noticeDomain:noticeDomains){
                 NoticePojo noticePojo=new NoticePojo(noticeDomain.getNoticeId(),noticeDomain.getAuthId(),globalDao.getActualUserName(noticeDomain.getAuthId()),

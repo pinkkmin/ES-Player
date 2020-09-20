@@ -4,6 +4,12 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!--绑定一个DAO接口-->
 <mapper namespace="com.player.es.cmf.Dao.TeamDao">
+    <select id="getInfoById" parameterType="String" resultType="java.util.LinkedHashMap">
+        select team_id teamId,team_name name, team_city city,
+        team_coach coach, team_home home,team_club club,team_status status
+       from team
+    where team_id = #{teamId}
+    </select>
     <select id="getTeamList" resultType="map">
       select  team_id teamId, team_name teamName from team
     </select>

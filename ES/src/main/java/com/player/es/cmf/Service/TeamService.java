@@ -9,13 +9,11 @@ import com.player.es.cmf.Domain.POJO.PieItemPojo;
 import com.player.es.cmf.Domain.POJO.SortItemPojo;
 import com.player.es.Config.MybatisConfig;
 import com.player.es.cmf.Domain.POJO.TeamComparePojo;
-import com.sun.javafx.scene.control.skin.VirtualFlow;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.math.BigDecimal;
-import java.sql.SQLOutput;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -30,6 +28,12 @@ public class TeamService {
 
     public TeamService() {
         globalConstData = new GlobalConstDataUtils();
+    }
+    public LinkedHashMap<String, String> getInfoById(String teamId) {
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            TeamDao team = sqlSession.getMapper(TeamDao.class);
+            return team.getInfoById(teamId);
+        }
     }
     public List<Map> getTeamList() {
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
@@ -256,9 +260,9 @@ public class TeamService {
     public LinkedHashMap<String,Object> comparePlayer(String homeId,String awayId,String season){
         try(SqlSession sqlSession = MybatisConfig.getSqlSession()) {
             PlayerDao playerDao = sqlSession.getMapper(PlayerDao.class);
-            LinkedHashMap<String,Object> data = new LinkedHashMap<>(); //return
+            LinkedHashMap<String,Object> data = new LinkedHashMap<>();
             LinkedHashMap<String,Object> home =  playerDao.getPlayerInfoOfTeam(homeId),away = playerDao.getPlayerInfoOfTeam(awayId);
-            LinkedHashMap<String,Object> radarData = getRadarData(homeId,home.get("playerName").toString(),season);
+            LinkedHashMap<String,Object> radarData = getRadarData(homeId, home.get("playerName").toString(), season);
             ArrayList<LinkedHashMap> radarDataList = (ArrayList)radarData.get("data");
             radarDataList.add(getRadarDataItem(awayId,away.get("playerName").toString(),season));
             LinkedHashMap<String,Double> homeAvg = playerDao.getSeasonAvg(homeId,season),awayAvg = playerDao.getSeasonAvg(awayId,season);
@@ -270,6 +274,16 @@ public class TeamService {
             away.replace("position",getPositionByCN(away.get("position")));
             data.put("home",home);
             data.put("away",away);
+            ArrayList<Double> homeValue = (ArrayList)radarDataList.get(0).get("value");
+            ArrayList<Double> awayValue = (ArrayList)radarDataList.get(1).get("value");
+            LinkedHashMap<String,Double> maxItem = new LinkedHashMap<>();
+            maxItem.put("maxScore",Math.max(homeValue.get(0),awayValue.get(0))+1);
+            maxItem.put("maxAssist",Math.max(homeValue.get(1),awayValue.get(1))+1);
+            maxItem.put("maxBound",Math.max(homeValue.get(2),awayValue.get(2))+1);
+            maxItem.put("maxBlock",Math.max(homeValue.get(3),awayValue.get(3))+1);
+            maxItem.put("maxSteal",Math.max(homeValue.get(4),awayValue.get(4))+1);
+            radarData.put("maxData",maxItem);
+
             data.put("radarData",radarData);
             data.put("barData",barData);
             return data;

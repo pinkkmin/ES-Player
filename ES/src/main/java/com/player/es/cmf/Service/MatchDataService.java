@@ -88,7 +88,6 @@ public class MatchDataService {
                  ) {
                 Double item = getDoubleByObject(data.get(name),game);
                 value.add(item);
-
             }
             return value;
         }

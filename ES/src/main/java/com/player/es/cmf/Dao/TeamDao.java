@@ -8,6 +8,7 @@ import java.lang.reflect.Array;
 import java.util.*;
 
 public interface TeamDao {
+    LinkedHashMap<String,String> getInfoById(String teamId);
     // 获取-球队-列表
     List<Map> getTeamList();
     //赛季-列表 2019-2020 2018-2019

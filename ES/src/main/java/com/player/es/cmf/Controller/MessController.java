@@ -30,6 +30,7 @@ public class MessController {
     @GetMapping("/api/teamList")
     public ResponseUnit apiTeamList() {
         List<Map> data = teamService.getTeamList();
+        //System.out.println("*****");
         return new ResponseUnit(200,"球队列表",data);
     }
 
@@ -72,9 +73,7 @@ public class MessController {
     @RequestMapping("/api/team/info")
     public ResponseUnit getTeamInfo(@RequestBody Map<String, String> map) {
         String teamId = map.get("teamId");
-        String season = map.get("season");
-//        System.out.println(season);
-        LinkedHashMap data =  matchService.getTeamInfoBySort(teamId,season);
+        LinkedHashMap data =  teamService.getInfoById(teamId);
         return new ResponseUnit(200,"数据请求成功....",data);
     }
 }

@@ -56,7 +56,6 @@ public class UserController {
     @RequiresAuthentication
     @GetMapping("/api/user/info")
     public ResponseUnit myInformation(@RequestHeader ("Authorization") String jwt){
-        System.out.println(jwt);
         Claims claim = jwtUtils.getClaimByToken(jwt);
         //获取用户Id
         String userId = claim.getSubject();

@@ -5,14 +5,14 @@
 <mapper namespace="com.player.es.lss.Dao.ManageDao">
 <!--    后台管理：修改用户信息-->
     <update id="editUser" parameterType="UserDto">
-        update user_info set user_name=#{userName},email=#{userEmail},role=#{role},team_id=#{teamId} where user_id=#{userId}
+        update user_info set role=#{type},team_id=#{teamId} where user_id=#{userId}
     </update>
 <!--    后台管理：查询用户信息-->
     <select id="queryUser" parameterType="Map" resultType="UserDomain">
         select * from user_info
         <where>
             <if test="userName!=null">
-                and user_info.user_name=#{userName}
+                user_name like CONCAT('%',#{userName,jdbcType=VARCHAR},'%' )
             </if>
             <if test="userType!=null">
                 and role=#{userType}
@@ -21,7 +21,7 @@
                 and user_email==#{email}
             </if>
         </where>
-        limit #{startNum},#{endNum}
+        limit #{startNum},#{endNum};
     </select>
 <!--    后台管理：获取查询到的用户的总量-->
     <select id="getQueryUserNum" parameterType="Map" resultType="int">
@@ -96,7 +96,7 @@
     </select>
 <!--    后台管理：根据TeamId获取Service-->
     <select id="getServiceByTeamId" parameterType="Map" resultType="java.util.LinkedHashMap">
-        select service.player_id playerId,player_name,start_status status,date_format(start_time,"%Y-%m-%d") date
+        select service.player_id playerId,player_name playerName,start_status status,date_format(start_time,"%Y-%m-%d") date
         from service,player
         where player.player_id=service.player_id and service.team_id=#{teamId}
         limit #{startNum},#{endNum}
