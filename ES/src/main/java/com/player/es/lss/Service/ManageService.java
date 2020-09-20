@@ -133,9 +133,10 @@ public class ManageService {
             @SuppressWarnings("unchecked")
                     Map<String,String> away = (Map<String,String>)hashMap.get("away");
             noticeDomain.setPlayerId(player.get("playerId"));
-            noticeDomain.setHomeId(home.get("teamId"));
-            noticeDomain.setAwayId(away.get("teamId"));
+            noticeDomain.setHomeId(home.get("homeId"));
+            noticeDomain.setAwayId(away.get("awayId"));
             int status = manageDao.editNotice(noticeDomain);
+
             if(status>0){
                 sqlSession.commit();
             }

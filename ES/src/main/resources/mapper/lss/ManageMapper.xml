@@ -18,7 +18,7 @@
                 and role=#{userType}
             </if>
             <if test="email!=null">
-                and user_email==#{email}
+                and email like CONCAT('%',#{email,jdbcType=VARCHAR},'%' )
             </if>
         </where>
         limit #{startNum},#{endNum};
@@ -28,13 +28,13 @@
         select count(user_id) from user_info
         <where>
             <if test="userName!=null">
-                and user_info.user_name=#{userName}
+                user_name like CONCAT('%',#{userName,jdbcType=VARCHAR},'%' )
             </if>
             <if test="userType!=null">
                 and role=#{userType}
             </if>
             <if test="email!=null">
-                and user_email==#{email}
+                and email like CONCAT('%',#{email,jdbcType=VARCHAR},'%' )
             </if>
         </where>
     </select>
@@ -62,8 +62,34 @@
     </delete>
 <!--    后台管理：编辑公告-->
     <update id="editNotice" parameterType="NoticeDomain">
-        update notice set auth_id=#{authId},player_id=#{playerId},home_id=#{homeId},away_id=#{awayId},notice_date=#{noticeDate},
+        update notice set auth_id=#{authId}
+        <choose>
+            <when test="playerId==null or playerId==''">
+                ,player_id=NULL
+            </when>
+            <otherwise>
+                ,player_id=#{playerId}
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="homeId==null or homeId==''">
+                ,home_id=NULL
+            </when>
+            <otherwise>
+                ,home_id=#{homeId}
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="awayId==null or awayId==''">
+                ,away_id=NULL
+            </when>
+            <otherwise>
+                ,away_id=#{awayId}
+            </otherwise>
+        </choose>
+        ,notice_date=#{noticeDate},
         title=#{title},content=#{content}
+        where notice_id = #{noticeId}
     </update>
 <!--    后台管理：查询公告-返回一部分公告-->
     <select id="queryNotice" parameterType="Map" resultType="NoticeDomain">
