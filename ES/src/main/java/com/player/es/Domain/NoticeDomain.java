@@ -3,7 +3,6 @@ package com.player.es.Domain;
 import lombok.Data;
 
 import java.util.Date;
-
 @Data
 public class NoticeDomain {
     String noticeId;    // 公告ID

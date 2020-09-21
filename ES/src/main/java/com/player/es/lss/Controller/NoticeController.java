@@ -27,7 +27,6 @@ public class NoticeController {
         noticeDomain.setContent(map.get("content"));
         noticeDomain.setNoticeDate(new Date());
         noticeDomain.setPlayerId(map.get("playerId"));
-        noticeDomain.setNoticeId("1234567");
         int work = noticeService.createNotice(noticeDomain);
         if(work > 0){
             return ResponseUnit.succ(200,"添加成功", "");
