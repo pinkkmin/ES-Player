@@ -33,7 +33,7 @@ public interface ManageDao {
     int deleteActualNotice(String noticeId);
 
     //    后台管理：发布公告
-    void pushNotice(NoticeDomain noticeDomain);
+    //void pushNotice(NoticeDomain noticeDomain);
 
     //    后台管理：更新公告
     int editNotice(NoticeDomain noticeDomain);

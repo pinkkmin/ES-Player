@@ -2,8 +2,10 @@ package com.player.es.cmf.Controller;
 
 import com.player.es.Config.MybatisConfig;
 import com.player.es.Utils.ResponseUnit;
+import com.player.es.cmf.Dao.KeyDao;
 import com.player.es.cmf.Service.MatchService;
 import com.player.es.cmf.Service.TeamService;
+import com.player.es.lss.Dao.UserDao;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -80,9 +82,10 @@ public class GlobalController {
     @RequestMapping("/api/global/regKeyNumber")
     public ResponseUnit regKeyNumber(@RequestBody Map<String,String> map) {
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
-            boolean isExist = false;
-            //if(!sign) return new ResponseUnit(400,"邮箱已被注册,可通过找回密码重新登录",null);
+            UserDao userDao = sqlSession.getMapper(UserDao.class);
             String email = map.get("email");
+            String userId  = userDao.getUserIdByEmail(email);
+            if(userId!=null) return new ResponseUnit(400,"邮箱已被注册,可通过找回密码重新登录",null);
             int type = Integer.valueOf(map.get("type"));
             return teamService.getKeyNumber(email,type);
         }
@@ -100,5 +103,11 @@ public class GlobalController {
     public ResponseUnit playerService(@RequestBody Map<String,String> map) {
         String playerId = map.get(("playerId"));
         return new ResponseUnit(200,"", teamService.getPlayerService(playerId));
+    }
+    @RequestMapping("/api/global/teamInfo")
+    public ResponseUnit teamSortInfo(@RequestBody Map<String,String> map) {
+        String teamId = map.get("teamId");
+        String season = map.get("season");
+        return new ResponseUnit(200,"", teamService.getTeamInfoSort(teamId,season));
     }
 }

@@ -1,5 +1,6 @@
 package com.player.es.cmf.Service;
 
+import com.player.es.Domain.UserDomain;
 import com.player.es.Utils.EmailUtils;
 import com.player.es.Utils.GlobalConstDataUtils;
 import com.player.es.Utils.ResponseUnit;
@@ -9,20 +10,22 @@ import com.player.es.cmf.Domain.POJO.PieItemPojo;
 import com.player.es.cmf.Domain.POJO.SortItemPojo;
 import com.player.es.Config.MybatisConfig;
 import com.player.es.cmf.Domain.POJO.TeamComparePojo;
-import com.sun.javafx.scene.control.skin.VirtualFlow;
+import com.player.es.lss.Dao.UserDao;
+import com.player.es.lss.Service.UserService;
 import org.apache.ibatis.session.SqlSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
 import java.math.BigDecimal;
-import java.sql.SQLOutput;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
 public class TeamService {
-
+    @Autowired
+    UserService userService;
     //utils
     private GlobalConstDataUtils globalConstData;
     private DecimalFormat df = new DecimalFormat("#.0");
@@ -30,6 +33,28 @@ public class TeamService {
 
     public TeamService() {
         globalConstData = new GlobalConstDataUtils();
+    }
+    public LinkedHashMap<String, String> getInfoById(String teamId) {
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            TeamDao team = sqlSession.getMapper(TeamDao.class);
+            return team.getInfoById(teamId);
+        }
+    }
+    public LinkedHashMap getTeamInfoSort(String teamId, String season){
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            MatchDao matchDao = sqlSession.getMapper(MatchDao.class);
+            TeamDao team = sqlSession.getMapper(TeamDao.class);
+            ArrayList<LinkedHashMap> sortList = matchDao.getAllTeamSort(season);
+            LinkedHashMap data =  team.getTeamBaseInfo(teamId);
+            for (LinkedHashMap item: sortList
+                 ) {
+                if(item.get("teamId").equals(teamId)) {
+                    data.putAll(item);
+                }
+            }
+            data.put("season",season);
+        return data;
+        }
     }
     public List<Map> getTeamList() {
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
@@ -256,9 +281,9 @@ public class TeamService {
     public LinkedHashMap<String,Object> comparePlayer(String homeId,String awayId,String season){
         try(SqlSession sqlSession = MybatisConfig.getSqlSession()) {
             PlayerDao playerDao = sqlSession.getMapper(PlayerDao.class);
-            LinkedHashMap<String,Object> data = new LinkedHashMap<>(); //return
+            LinkedHashMap<String,Object> data = new LinkedHashMap<>();
             LinkedHashMap<String,Object> home =  playerDao.getPlayerInfoOfTeam(homeId),away = playerDao.getPlayerInfoOfTeam(awayId);
-            LinkedHashMap<String,Object> radarData = getRadarData(homeId,home.get("playerName").toString(),season);
+            LinkedHashMap<String,Object> radarData = getRadarData(homeId, home.get("playerName").toString(), season);
             ArrayList<LinkedHashMap> radarDataList = (ArrayList)radarData.get("data");
             radarDataList.add(getRadarDataItem(awayId,away.get("playerName").toString(),season));
             LinkedHashMap<String,Double> homeAvg = playerDao.getSeasonAvg(homeId,season),awayAvg = playerDao.getSeasonAvg(awayId,season);
@@ -270,6 +295,16 @@ public class TeamService {
             away.replace("position",getPositionByCN(away.get("position")));
             data.put("home",home);
             data.put("away",away);
+            ArrayList<Double> homeValue = (ArrayList)radarDataList.get(0).get("value");
+            ArrayList<Double> awayValue = (ArrayList)radarDataList.get(1).get("value");
+            LinkedHashMap<String,Double> maxItem = new LinkedHashMap<>();
+            maxItem.put("maxScore",Math.max(homeValue.get(0),awayValue.get(0))+1);
+            maxItem.put("maxAssist",Math.max(homeValue.get(1),awayValue.get(1))+1);
+            maxItem.put("maxBound",Math.max(homeValue.get(2),awayValue.get(2))+1);
+            maxItem.put("maxBlock",Math.max(homeValue.get(3),awayValue.get(3))+1);
+            maxItem.put("maxSteal",Math.max(homeValue.get(4),awayValue.get(4))+1);
+            radarData.put("maxData",maxItem);
+
             data.put("radarData",radarData);
             data.put("barData",barData);
             return data;
@@ -524,6 +559,9 @@ public class TeamService {
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
             KeyDao keyDao = sqlSession.getMapper(KeyDao.class);
             LinkedHashMap<String, Object> res = keyDao.getKeyNumber(email);
+            if(res == null) {
+                return new ResponseUnit(400, "验证码不存在", null);
+            }
             String resEmail = (String) res.get("email");
             if (null != resEmail) { // 用户存在
                 Date keyTime = (Date) res.get("key_time");
@@ -531,15 +569,16 @@ public class TeamService {
                 int kn = Integer.valueOf(map.get("keyNumber"));
                 Long start = keyTime.getTime() + 300900;
                 Long now = new Date().getTime();
+                if (now > start) {
+                    return new ResponseUnit(400, "验证码失效", null);
+                }
                 if (keyNumber != kn) {
                     return new ResponseUnit(400, "验证码错误", null);
                 }
-                if (now <= start) {
-                    keyDao.deleteKey(email);
-                    return new ResponseUnit(200, "密码已重置", null);
-                } else {
-                    return new ResponseUnit(400, "验证码失效", null);
-                }
+                keyDao.deleteKey(email);
+                sqlSession.commit();
+                return new ResponseUnit(200, "", null);
+
             } else {// 用户不存在
                 return new ResponseUnit(400, "验证码已过期", null);
             }
@@ -548,25 +587,35 @@ public class TeamService {
     public ResponseUnit resetPwd(Map<String,String> map) {
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
             ResponseUnit data =  keyNumberRight(map);
+            if(data.getCode()==200){
+                UserDao userDao = sqlSession.getMapper(UserDao.class);
+                int status = userDao.resetPasswd(map);
+                if(status!=0) {
+                    sqlSession.commit();
+                    data.setMessage("密码找回成功");
+                }
+            }
             return data;
         }
     }
     public ResponseUnit register(Map<String,String> map) {
             try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
                 ResponseUnit data =  keyNumberRight(map);
-                if(data.getCode()==200){
-                    System.out.println("注册成功");
+                if(data.getCode()==200){  // 验证码有效
+                    String name = map.get("userName");
+                    UserDao userDao = sqlSession.getMapper(UserDao.class);
+                    UserDomain user = userDao.getByUserName(name);
+                    if(user != null) return new ResponseUnit(400,"用户名已被注册,请重新设置",null);
+                    LinkedHashMap<String,Object> userInfo =  userService.userCheckIn(map);
+                    if(userInfo == null) {
+                        data.setCode(400);
+                        data.setMessage("注册失败.....");
+                    }
                 }
                 return data;
             }
     }
     String getStatus(int status) {
-        /*
-        *   { value: '首签' },
-            { value: '签约' },
-            { value: '交易' },
-            { value: '解雇' },
-            { value: '退役' },*/
         switch (status){
             case 0 : return "自由";
             case 1 : return "首签";

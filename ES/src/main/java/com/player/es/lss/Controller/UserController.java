@@ -7,16 +7,22 @@ import com.player.es.Domain.LoginDto;
 import com.player.es.Domain.UserDomain;
 import com.player.es.lss.Service.UserService;
 import com.player.es.Utils.JwtUtils;
+import com.player.es.shiro.JwtToken;
+import io.jsonwebtoken.Claims;
 import org.apache.commons.collections.map.HashedMap;
 
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpRequest;
 import org.springframework.util.Assert;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.security.auth.Subject;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -47,32 +53,32 @@ public class UserController {
         return ResponseUnit.succ(test);
     }
 //  -------------------------------------------接口1：我的信息获取---------------------------------------
+    ///PS：cmf 修改了此部分, 获取用户id用于登陆
     @RequiresAuthentication
-    @PostMapping("/api/user/info")
-    public ResponseUnit myInformation(@RequestBody HashMap<String,String> hashMap){
-        return ResponseUnit.succ(200,"获取成功",userService.getUserInformation(hashMap.get("userId")));
+    @GetMapping("/api/user/info")
+    public ResponseUnit myInformation(@RequestHeader ("Authorization") String jwt){
+        Claims claim = jwtUtils.getClaimByToken(jwt);
+        //获取用户Id
+        String userId = claim.getSubject();
+        return ResponseUnit.succ(200,"获取成功",userService.getUserInformation(userId));
     }
 //-------------------------------------------接口2：修改密码---------------------------------------
-    @RequestMapping("/api/user/password")
+    @RequestMapping("/api/user/altpwd")
     public ResponseUnit password_change(@RequestBody Map<String,String> map){
-        boolean work = userService.passwordChange(map.get("userId"),map.get("password"),map.get("newPasswd"));
-        if(work){
-            return ResponseUnit.succ("");
-        }
-        else
-            return ResponseUnit.fail("原密码不正确");
+       return userService.altPasswd(map.get("userId"),map.get("oldPasswd"),map.get("newPasswd"));
     }
-//    -------------------------------------------接口2：修改密码---------------------------------------
-//    -------------------------------------------接口3：修改邮箱-----------------------------------------
-    @RequestMapping("/api/user/email")
-    public ResponseUnit email_change(@RequestBody HashMap<String, String> hashMap){
-        boolean work = userService.emailChange(hashMap.get("userId"), hashMap.get("password"), hashMap.get("email"));
-        if(work){
-            return ResponseUnit.succ("");
-        }
-        else{
-            return ResponseUnit.fail("修改失败");
-        }
+//    -------------------------------------------接口3：修改用户名-----------------------------------------
+    @RequestMapping("/api/user/altInfo")
+    public ResponseUnit email_change(@RequestBody Map<String, Object> map){
+       return userService.altUserInfo(map);
     }
-//    -------------------------------------------接口3：修改邮箱-----------------------------------------
+    @RequestMapping("/api/user/logout")
+    public ResponseUnit logout(@RequestHeader ("Authorization") String jwt)
+    {
+        Claims claim =  jwtUtils.getClaimByToken(jwt);
+        claim.remove("sub");
+        claim.remove("exp");
+        //注销
+        return new ResponseUnit(200,"","");
+    }
 }

@@ -23,7 +23,7 @@ public class LGlobalController {
     @RequestMapping("/userList")
     public ResponseUnit getUserList(@RequestBody HashMap<String, Integer> hashMap){
         int startNum = hashMap.get("page")*hashMap.get("pageSize");
-        int endNum = startNum+hashMap.get("pageSize");
+        int endNum = hashMap.get("pageSize");
         return ResponseUnit.succ(200, "返回成功", globalService.getActualNumUser(startNum,endNum));
     }
 
@@ -37,8 +37,9 @@ public class LGlobalController {
     @RequestMapping("/playerList")
     public ResponseUnit getTeamPlayer(@RequestBody HashMap<String, Object> hashMap){
         int startNum = (int)hashMap.get("page")*(int)hashMap.get("pageSize");
-        int endNum = startNum+(int)hashMap.get("pageSize");
+        int endNum = (int)hashMap.get("pageSize");
         String teamId = hashMap.get("teamId").toString();
+     //   System.out.println(hashMap);
         return ResponseUnit.succ(200, "获取成功", globalService.getTeamPlayer(teamId,startNum,endNum));
     }
 
@@ -58,7 +59,7 @@ public class LGlobalController {
     @RequestMapping("/queryPlayerList")
     public ResponseUnit queryPlayerList(@RequestBody HashMap<String, Object> hashMap){
         int startNum = (int)hashMap.get("page")*(int)hashMap.get("pageSize");
-        int endNum = startNum+(int)hashMap.get("pageSize");
+        int endNum = (int)hashMap.get("pageSize");
         hashMap.put("startNum",startNum );
         hashMap.put("endNum",endNum);
         return ResponseUnit.succ(200,"获取成功", globalService.queryPlayerList(hashMap));
@@ -68,7 +69,7 @@ public class LGlobalController {
     @RequestMapping("/allNotices")
     public ResponseUnit getAllNotices(@RequestBody HashMap<String, Integer> hashMap){
         int startNum = (int)hashMap.get("page")*(int)hashMap.get("pageSize");
-        int endNum = startNum+(int)hashMap.get("pageSize");
+        int endNum = (int)hashMap.get("pageSize");
         return ResponseUnit.succ(200, "获取成功",globalService.getAllNotices(startNum,endNum));
     }
 

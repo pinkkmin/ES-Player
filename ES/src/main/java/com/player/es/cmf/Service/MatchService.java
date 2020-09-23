@@ -1,6 +1,5 @@
 package com.player.es.cmf.Service;
 
-import com.player.es.Domain.PlayerDomain;
 import com.player.es.Utils.FileUtils;
 import com.player.es.Utils.GlobalConstDataUtils;
 import com.player.es.Utils.ResponseUnit;
@@ -14,8 +13,6 @@ import com.player.es.cmf.Domain.POJO.MatchDataPojo;
 import com.player.es.cmf.Domain.POJO.TeamComparePojo;
 import com.player.es.Config.MybatisConfig;
 import com.player.es.cmf.Domain.POJO.MagMatchPojo;
-import net.sf.saxon.expr.Component;
-import net.sf.saxon.expr.instruct.ITemplateCall;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -230,8 +227,8 @@ public class MatchService {
         String fileName = file.getOriginalFilename();
         String lastName = fileName.substring(fileName.lastIndexOf(".")+1);
         LinkedHashMap<String,Object> fileData ;
-        System.out.println(fileName);
-        System.out.println(lastName);
+        //System.out.println(fileName);
+        //System.out.println(lastName);
         if(lastName.equals("csv")) {
             fileData =  fileUtils.doMatchDataByCSV(file);
         }

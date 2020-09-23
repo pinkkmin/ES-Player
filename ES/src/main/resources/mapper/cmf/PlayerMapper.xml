@@ -36,7 +36,8 @@
     </select>
     <select id="getPlayerInfoOfTeam" resultType="java.util.LinkedHashMap">
        select player_id playerId,player_name playerName,team.team_id teamId,team_name teamName,player_number number,
-        player_height height,player_weight weight,player_wingspan wingspan,player_birth birth, player_position position
+        player_height height,player_weight weight,player_wingspan wingspan,player_birth birth, player_position position,
+        player_logo logo
         from team,player
         where player_id = #{playerId} and player.team_id = team.team_id;
     </select>

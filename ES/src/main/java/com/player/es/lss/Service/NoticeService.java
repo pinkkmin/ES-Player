@@ -8,16 +8,24 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 @Service
 public class NoticeService {
     public int createNotice(NoticeDomain noticeDomain){
-        SqlSession sqlSession = MybatisConfig.getSqlSession();
-        NoticeDao mapper = sqlSession.getMapper(NoticeDao.class);
-        int status = mapper.createNotice(noticeDomain);
-        sqlSession.commit();
-        sqlSession.close();
-        return status;
+        try(SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            NoticeDao noticeDao = sqlSession.getMapper(NoticeDao.class);
+            String noticeId = UUID.randomUUID().toString().replace("-", "").substring(0, 9);
+            while(noticeDao.isExistId(noticeId)!=null){
+                noticeId = UUID.randomUUID().toString().replace("-", "").substring(0, 9);
+            }
+            noticeDomain.setNoticeId(noticeId);
+            //System.out.println(noticeDomain);
+            int status = noticeDao.createNotice(noticeDomain);
+            sqlSession.commit();
+            sqlSession.close();
+            return status;
+        }
     }
 
     public int editNotice(HashMap<String,String> hashMap){

@@ -62,7 +62,7 @@ public class EmailUtils {
             content += "<h1 style=\"font-size:35px;color:#409EFF;\">"+keyNumber+"</h1>";
             messageHelper.setText( content,true);
             javaMailSender.send(mimeMessage);
-            System.out.println("__________________");
+         //   System.out.println("__________________");
             return true;
         }
         catch (Exception e){

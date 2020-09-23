@@ -102,7 +102,7 @@ public class GlobalService {
                 List<LinkedHashMap<String, Object>> playerIds = globalDao.getTeamPlayerId(linkedHashMap.get("teamId").toString());
                 linkedHashMap.put("data", playerIds);
                 list.add(linkedHashMap);
-            } 
+            }
             return list;
         }
     }

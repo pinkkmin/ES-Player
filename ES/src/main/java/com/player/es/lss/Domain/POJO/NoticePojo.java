@@ -11,7 +11,6 @@ public class NoticePojo {
     String noticeId;
     String authId;
     String auth;
-    String authName;
     String title;
     @JsonFormat(pattern = "yyyy-MM-dd hh:mm",timezone = "GMT+8")
     Date date;
@@ -25,7 +24,7 @@ public class NoticePojo {
                       String homeId, String homeName, String awayId, String awayName, String playerId, String playerName){
         this.noticeId = noticeId;
         this.authId = authId;
-        this.authName =authName;
+        this.auth =authName;
         this.title = title;
         this.date = (Date)date;
         this.content = content;
