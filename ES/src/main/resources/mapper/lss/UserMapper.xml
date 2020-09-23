@@ -12,6 +12,9 @@
     <select id="getByUserID" parameterType="String" resultType="UserDomain">
     SELECT  * FROM user_info WHERE user_id = #{userID}
     </select>
+    <select id="getPwdByUserID" parameterType="String" resultType="String">
+    SELECT  passwd FROM user_info WHERE user_id = #{userId}
+    </select>
 <!--    通过用户名查找用户信息-->
     <select id="getByUserName" parameterType="String" resultType="UserDomain">
     SELECT  * FROM user_info WHERE user_name = #{userName}
@@ -24,18 +27,26 @@
     <update id="updateEmail" parameterType="Map">
         update user_info set email=#{newEmail} where user_id=#{userId}
     </update>
+    <update id="altUserName" parameterType="Map">
+        update user_info set user_name=#{userName} where user_id = #{userId}
+    </update>
+    <update id="altPasswd" parameterType="String">
+        update user_info set passwd=#{passwd} where user_id = #{userId}
+    </update>
 <!--    注册用户-->
     <insert id="register" parameterType="Map">
-        insert into user_info
-        values(#{userId},#{userName},#{passswd},#{email},#{role},#{teamId})
+        insert into user_info(user_id,user_name,passwd,email,role,team_id)
+        values(#{userId},#{userName},#{passwd},#{email},#{role},#{teamId})
     </insert>
 <!--    找回密码-->
-    <update id="resetPasswd" parameterType="Map">
+    <update id="resetPasswd" parameterType="Map" keyProperty="user_id">
         update user_info set passwd=#{passwd} where email=#{email}
     </update>
 <!--    获取当前用户信息-->
     <select id="getUserInformation" parameterType="String" resultType="java.util.LinkedHashMap">
-        select role,user_id id,email,user_name username from user_info where user_id=#{userId}
+        select role,user_id userId,email,user_name userName,u.team_id teamId,team_name teamName
+        from user_info u,team t
+        where user_id=#{userId} and t.team_id = u.team_id
     </select>
 <!--    通过email查询用户id-->
     <select id="getUserIdByEmail" parameterType="String" resultType="String">

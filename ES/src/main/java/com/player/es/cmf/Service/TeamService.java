@@ -1,5 +1,6 @@
 package com.player.es.cmf.Service;
 
+import com.player.es.Domain.UserDomain;
 import com.player.es.Utils.EmailUtils;
 import com.player.es.Utils.GlobalConstDataUtils;
 import com.player.es.Utils.ResponseUnit;
@@ -9,7 +10,10 @@ import com.player.es.cmf.Domain.POJO.PieItemPojo;
 import com.player.es.cmf.Domain.POJO.SortItemPojo;
 import com.player.es.Config.MybatisConfig;
 import com.player.es.cmf.Domain.POJO.TeamComparePojo;
+import com.player.es.lss.Dao.UserDao;
+import com.player.es.lss.Service.UserService;
 import org.apache.ibatis.session.SqlSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -20,7 +24,8 @@ import java.util.*;
 
 @Service
 public class TeamService {
-
+    @Autowired
+    UserService userService;
     //utils
     private GlobalConstDataUtils globalConstData;
     private DecimalFormat df = new DecimalFormat("#.0");
@@ -33,6 +38,22 @@ public class TeamService {
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
             TeamDao team = sqlSession.getMapper(TeamDao.class);
             return team.getInfoById(teamId);
+        }
+    }
+    public LinkedHashMap getTeamInfoSort(String teamId, String season){
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            MatchDao matchDao = sqlSession.getMapper(MatchDao.class);
+            TeamDao team = sqlSession.getMapper(TeamDao.class);
+            ArrayList<LinkedHashMap> sortList = matchDao.getAllTeamSort(season);
+            LinkedHashMap data =  team.getTeamBaseInfo(teamId);
+            for (LinkedHashMap item: sortList
+                 ) {
+                if(item.get("teamId").equals(teamId)) {
+                    data.putAll(item);
+                }
+            }
+            data.put("season",season);
+        return data;
         }
     }
     public List<Map> getTeamList() {
@@ -538,6 +559,9 @@ public class TeamService {
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
             KeyDao keyDao = sqlSession.getMapper(KeyDao.class);
             LinkedHashMap<String, Object> res = keyDao.getKeyNumber(email);
+            if(res == null) {
+                return new ResponseUnit(400, "验证码不存在", null);
+            }
             String resEmail = (String) res.get("email");
             if (null != resEmail) { // 用户存在
                 Date keyTime = (Date) res.get("key_time");
@@ -545,15 +569,16 @@ public class TeamService {
                 int kn = Integer.valueOf(map.get("keyNumber"));
                 Long start = keyTime.getTime() + 300900;
                 Long now = new Date().getTime();
+                if (now > start) {
+                    return new ResponseUnit(400, "验证码失效", null);
+                }
                 if (keyNumber != kn) {
                     return new ResponseUnit(400, "验证码错误", null);
                 }
-                if (now <= start) {
-                    keyDao.deleteKey(email);
-                    return new ResponseUnit(200, "密码已重置", null);
-                } else {
-                    return new ResponseUnit(400, "验证码失效", null);
-                }
+                keyDao.deleteKey(email);
+                sqlSession.commit();
+                return new ResponseUnit(200, "", null);
+
             } else {// 用户不存在
                 return new ResponseUnit(400, "验证码已过期", null);
             }
@@ -562,25 +587,35 @@ public class TeamService {
     public ResponseUnit resetPwd(Map<String,String> map) {
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
             ResponseUnit data =  keyNumberRight(map);
+            if(data.getCode()==200){
+                UserDao userDao = sqlSession.getMapper(UserDao.class);
+                int status = userDao.resetPasswd(map);
+                if(status!=0) {
+                    sqlSession.commit();
+                    data.setMessage("密码找回成功");
+                }
+            }
             return data;
         }
     }
     public ResponseUnit register(Map<String,String> map) {
             try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
                 ResponseUnit data =  keyNumberRight(map);
-                if(data.getCode()==200){
-                    System.out.println("注册成功");
+                if(data.getCode()==200){  // 验证码有效
+                    String name = map.get("userName");
+                    UserDao userDao = sqlSession.getMapper(UserDao.class);
+                    UserDomain user = userDao.getByUserName(name);
+                    if(user != null) return new ResponseUnit(400,"用户名已被注册,请重新设置",null);
+                    LinkedHashMap<String,Object> userInfo =  userService.userCheckIn(map);
+                    if(userInfo == null) {
+                        data.setCode(400);
+                        data.setMessage("注册失败.....");
+                    }
                 }
                 return data;
             }
     }
     String getStatus(int status) {
-        /*
-        *   { value: '首签' },
-            { value: '签约' },
-            { value: '交易' },
-            { value: '解雇' },
-            { value: '退役' },*/
         switch (status){
             case 0 : return "自由";
             case 1 : return "首签";
