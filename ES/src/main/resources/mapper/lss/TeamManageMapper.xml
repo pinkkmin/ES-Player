@@ -14,4 +14,41 @@
         update player set player_name=#{name},player_birth=#{birth},player_height=#{height},player_weight=#{weight},
         player_wingspan=#{wingspan},player_number=#{number},player_position=#{position} where player_id=#{playerId}
     </update>
+<!--    球队管理：查询球员-->
+    <select id="queryPlayer" parameterType="Map" resultType="java.util.LinkedHashMap">
+        select player_id playerId,player.team_id teamId,team_name teamName,player_name name,player_number number,player_position position,
+        player_height height,player_weight weight,player_wingspan wingspan,date_format(player_birth,'%y-%m-%d') birth,year(now())-year(player_birth) age
+        from player,team
+        <where>
+            <if test="teamId!=null and teamId!=''">
+                and player.team_id=#{teamId}
+            </if>
+            <if test="playerName!=null and playerName!=''">
+                and player_name=#{playerName}
+            </if>
+            <if test="position!=null and position!=''">
+                and player_position=#{position}
+            </if>
+            <if test="1!=null">
+                and player.team_id=team.team_id
+            </if>
+        </where>
+        limit #{startNum},#{pageSize}
+    </select>
+    <!--    球队管理：查询球员总量-->
+    <select id="queryPlayerNum" parameterType="Map" resultType="int">
+        select count(player_id)
+        from player
+        <where>
+            <if test="teamId!=null and teamId!=''">
+                and player.team_id=#{teamId}
+            </if>
+            <if test="playerName!=null and playerName!=''">
+                and player_name=#{playerName}
+            </if>
+            <if test="position!=null and position!=''">
+                and player_position=#{position}
+            </if>
+        </where>
+    </select>
 </mapper>

@@ -59,5 +59,6 @@
         <mapper resource="mapper/lss/NoticeMapper.xml"/>
         <mapper resource="mapper/lss/GlobalMapper.xml"/>
         <mapper resource="mapper/lss/ManageMapper.xml"/>
+        <mapper resource="mapper/lss/TeamManageMapper.xml"/>
     </mappers>
 </configuration>

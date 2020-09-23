@@ -36,4 +36,10 @@ public class TeamManageController {
         else
             return ResponseUnit.fail("修改失败");
     }
+
+//    球队管理：查询球员
+    @RequestMapping("queryPlayer")
+    public ResponseUnit queryPlayer(@RequestBody HashMap<String,Object> hashMap){
+        return ResponseUnit.succ(200,"查询成功", teamManageService.queryPlayer(hashMap));
+    }
 }

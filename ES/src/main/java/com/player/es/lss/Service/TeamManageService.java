@@ -8,6 +8,9 @@ import org.apache.shiro.crypto.hash.Hash;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class TeamManageService {
@@ -32,6 +35,19 @@ public class TeamManageService {
                 sqlSession.commit();
             }
             return status;
+        }
+    }
+
+//    球队管理：查询球员
+    public LinkedHashMap<String,Object> queryPlayer(HashMap<String,Object> hashMap){
+        try(SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            TeamManageDao teamManageDao = sqlSession.getMapper(TeamManageDao.class);
+            hashMap.put("startNum", (int)hashMap.get("page")*(int)hashMap.get("pageSize"));
+            LinkedHashMap<String,Object> linkedHashMap = new LinkedHashMap<>();
+            List<Object> list = teamManageDao.queryPlayer(hashMap);
+            linkedHashMap.put("count", teamManageDao.queryPlayerNum(hashMap));
+            linkedHashMap.put("data", list);
+            return linkedHashMap;
         }
     }
 }
