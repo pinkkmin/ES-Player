@@ -71,5 +71,27 @@ public class TeamController {
         ArrayList<LinkedHashMap<String,Object>> data =  teamService.getPlayerArray(teamId,season);
         return new ResponseUnit(200,"数据请求成功....",data);
     }
+    /**查询球员*/
+    //{pageSize：100,page:2，teamId:'',position:'',name:''}
+    @RequestMapping("/api/manager/queryPlayer")
+    public ResponseUnit queryPlayer(@RequestBody Map<String, Object> map) {
+       return ResponseUnit.succ(teamService.queryPlayers(map));
 
+
+    }
+    /**查询退役 自由 球员*/
+    //{pageSize：100,page:2，teamId:'',position:'',name:''}
+    @RequestMapping("/api/manager/queryFreePlayers")
+    public ResponseUnit queryFreePlayers(@RequestBody Map<String, Object> map) {
+        return ResponseUnit.succ(teamService.queryFreePlayers(map));
+
+
+    }
+    @RequestMapping("/api/global/numberList")
+    public ResponseUnit getNumberList(@RequestBody Map<String, String> map) {
+        String teamId = map.get("teamId");
+        return ResponseUnit.succ(teamService.getNumberList(teamId));
+
+
+    }
 }

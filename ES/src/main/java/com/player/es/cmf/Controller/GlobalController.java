@@ -64,7 +64,7 @@ public class GlobalController {
         ResponseUnit res = new ResponseUnit();
         LinkedHashMap<String,Object> data = mService.doUpdateMatchData(file,parse);
         int code = (Integer)data.get("code");
-            res.setCode(code);
+            res.setCode(code); 
             res.setMessage((String)data.get("massage"));
         if(code == 200) {
             data.remove("code");

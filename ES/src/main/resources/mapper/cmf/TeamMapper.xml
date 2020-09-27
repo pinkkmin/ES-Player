@@ -120,4 +120,9 @@
         from service,team
         where player_id = #{playerId}  and team.team_id = service.team_id;
     </select>
+    <select id="getNumberListById" parameterType="String" resultType="java.util.LinkedHashMap">
+        select player_number number , 1 exist
+        from player
+        where team_id =#{teamId}
+    </select>
 </mapper>

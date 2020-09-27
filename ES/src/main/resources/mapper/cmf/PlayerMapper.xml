@@ -4,6 +4,25 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <!--绑定一个DAO接口-->
 <mapper namespace="com.player.es.cmf.Dao.PlayerDao">
+    <select id="isExistId" parameterType="String" resultType="String">
+            SELECT player_id from player where player_id = #{playerId}
+    </select>
+    <insert id="createPlayer" parameterType="map">
+    INSERT
+    INTO player(player_id, team_id,player_name,player_number,player_birth,player_height,player_weight,player_wingspan,player_position,player_servicing,player_logo)
+    VALUES(#{playerId},#{teamId},#{name},#{number},#{birth},#{height},#{weight},
+           #{wingspan},#{position},1,0)
+    </insert>
+<!--    交易-->
+    <update id="dealPlayer" parameterType="map">
+        update player set team_id = #{awayId}
+        where player_id = #{playerId}
+
+    </update>
+    <update id="deletePlayer">
+        update player set player_servicing = #{status}
+        where player_id = #{playerId}
+    </update>
     <select id="test" resultType="PlayerDomain">
         SELECT * FROM player
     </select>
@@ -118,4 +137,64 @@
         where match_data.match_id=match_.match_id and player_id=#{playerId}
         group by match_season order by match_season desc;
     </select>
+    <select id="queryPlayer" resultType="java.util.LinkedHashMap">
+        select player_id playerId,player_name name, p.team_id teamId, t.team_name teamName,player_logo logo,
+               player_number number , player_birth birth, date_format(now(),"%Y")- date_format(player_birth,"%Y") age,
+               player_position position ,player_height height,player_weight weight,player_wingspan wingspan
+         from player p, team t
+        where p.team_id = t.team_id and player_servicing = 1
+            <if test="name!=null and name!=''">
+                and player_name like CONCAT('%',#{name,jdbcType=VARCHAR},'%' )
+            </if>
+            <if test="position!=null and position!=''">
+                and player_position = #{position}
+            </if>
+            <if test="teamId!=null and teamId   !=''">
+                and p.team_id = #{teamId}
+            </if>
+        limit #{start},#{pageSize}
+    </select>
+    <select id="countQuery" resultType="int">
+     select count(*) from player
+      where  player_servicing = 1
+     <if test="name!=null and name!=''">
+         and player_name like CONCAT('%',#{name,jdbcType=VARCHAR},'%' )
+     </if>
+     <if test="position!=null and position!=''">
+         and player_position = #{position}
+     </if>
+     <if test="teamId!=null and teamId!=''">
+         and team_id = #{teamId}
+     </if>
+    </select>
+    <select id="queryFreePlayers" resultType="java.util.LinkedHashMap">
+        select player_id playerId,player_name name,player_logo logo,
+        player_number number , player_birth birth, date_format(now(),"%Y")- date_format(player_birth,"%Y") age,
+        player_position position ,player_height height,player_weight weight,player_wingspan wingspan,
+        player_servicing status
+        from player
+        where player_servicing !=1
+        <if test="name!=null and name!=''">
+            and player_name like CONCAT('%',#{name,jdbcType=VARCHAR},'%' )
+        </if>
+        <if test="position!=null and position!=''">
+            and player_position = #{position}
+        </if>
+        limit #{start},#{pageSize}
+    </select>
+    <select id="countFreePlayers" resultType="int">
+        select count(*) from player
+        where  player_servicing !=1
+            <if test="name!=null and name!=''">
+                and player_name like CONCAT('%',#{name,jdbcType=VARCHAR},'%' )
+            </if>
+            <if test="position!=null and position!=''">
+                and player_position = #{position}
+            </if>
+    </select>
+    <update id="addPlayers">
+        update player set player_servicing = 1, team_id = #{teamId}
+        where player_id = #{playerId}
+
+    </update>
 </mapper>

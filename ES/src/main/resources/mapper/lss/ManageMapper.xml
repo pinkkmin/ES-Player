@@ -102,6 +102,7 @@
                 and player_name=#{playerName}
             </if>
         </where>
+        order by notice_date desc
         limit #{startNum},#{endNum}
     </select>
 <!--    后台管理：获取查询到公告的总数-->
@@ -122,9 +123,10 @@
     </select>
 <!--    后台管理：根据TeamId获取Service-->
     <select id="getServiceByTeamId" parameterType="Map" resultType="java.util.LinkedHashMap">
-        select service.player_id playerId,player_name playerName,start_status status,date_format(start_time,"%Y-%m-%d") date
+        select service.player_id playerId,player_name playerName,player_logo logo,start_status status,date_format(start_time,"%Y-%m-%d") date
         from service,player
         where player.player_id=service.player_id and service.team_id=#{teamId}
+        order by  start_time desc
         limit #{startNum},#{endNum}
     </select>
 <!--    后台管理：查询根据teamId获取service的总量-->
@@ -133,9 +135,16 @@
         from service
         where team_id=#{teamId}
     </select>
+    <select id="isExistService" parameterType="String" resultType="String">
+        select server_id from service where server_id = #{serviceId}
+    </select>
+    <insert id="createService">
+        insert  into service(server_id,player_id,team_id,start_status,start_time)
+        values (#{serviceId},#{playerId},#{teamId},#{status},#{startTime})
+    </insert>
 <!--    后台管理：查询service-返回一部分-->
     <select id="queryService" parameterType="Map" resultType="java.util.LinkedHashMap">
-        select server_id serviceId,service.player_id playerId,player_name playerName,service.team_id teamId,team_name teamName,start_status status,date_format(start_time,"%Y-%m-%d") date
+        select server_id serviceId,service.player_id playerId,player_name playerName,player_logo logo,service.team_id teamId,team_name teamName,start_status status,date_format(start_time,"%Y-%m-%d") date
         from service,team,player
         <where>
             <if test="teamId!=null and teamId!=''">
@@ -148,6 +157,7 @@
                 and service.player_id=player.player_id and service.team_id=team.team_id
             </if>
         </where>
+        order by  start_time desc
         limit #{startNum},#{endNum}
     </select>
 <!--    后台管理：获取查询service的总量-->

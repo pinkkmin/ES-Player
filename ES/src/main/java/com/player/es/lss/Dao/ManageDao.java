@@ -55,7 +55,9 @@ public interface ManageDao {
 
 //    后台管理：查询service通过teamId 的总量
     int getServiceByTeamIdNum(Map<String,Object> map);
-
+    String isExistService(String serviceId);
+//创建效力记录
+    int createService(Map<String,Object> map);
 //    后台管理：查询service
     List<Object> queryService(Map<String,Object> map);
 

@@ -174,7 +174,7 @@ public class ManageService {
         try(SqlSession sqlSession = MybatisConfig.getSqlSession()){
             ManageDao manageDao = sqlSession.getMapper(ManageDao.class);
             hashMap.put("startNum",(int)hashMap.get("page")*(int)hashMap.get("pageSize"));
-            hashMap.put("endNum",(int)hashMap.get("startNum")+(int)hashMap.get("pageSize"));
+            hashMap.put("endNum",(int)hashMap.get("pageSize"));
             List<Object> list = manageDao.getServiceByTeamId(hashMap);
             LinkedHashMap<String,Object> linkedHashMap = new LinkedHashMap<>();
             linkedHashMap.put("count",manageDao.getServiceByTeamIdNum(hashMap));
@@ -188,7 +188,7 @@ public class ManageService {
         try(SqlSession sqlSession = MybatisConfig.getSqlSession()){
             ManageDao manageDao = sqlSession.getMapper(ManageDao.class);
             hashMap.put("startNum",(int)hashMap.get("page")*(int)hashMap.get("pageSize"));
-            hashMap.put("endNum",(int)hashMap.get("startNum")+(int)hashMap.get("pageSize"));
+            hashMap.put("endNum",(int)hashMap.get("pageSize"));
             List<Object> list =manageDao.queryService(hashMap);
             LinkedHashMap<String,Object> linkedHashMap = new LinkedHashMap<>();
             linkedHashMap.put("count",manageDao.getQueryServiceNum(hashMap));

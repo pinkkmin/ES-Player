@@ -10,6 +10,7 @@ import com.player.es.cmf.Domain.POJO.PieItemPojo;
 import com.player.es.cmf.Domain.POJO.SortItemPojo;
 import com.player.es.Config.MybatisConfig;
 import com.player.es.cmf.Domain.POJO.TeamComparePojo;
+import com.player.es.lss.Dao.ManageDao;
 import com.player.es.lss.Dao.UserDao;
 import com.player.es.lss.Service.UserService;
 import org.apache.ibatis.session.SqlSession;
@@ -529,11 +530,8 @@ public class TeamService {
                 if(age.intValue() == nowYear) {
                     item.put("age","--");
                 }
-            //    System.out.println(playerId);
                 LinkedHashMap<String,Object> avgData = playerDao.getSeasonAvgByEn(playerId,season);
-               // System.out.println(avgData);
                 item.putAll(avgData);
-//               System.out.println(item);
             }
         }
         return data;
@@ -651,6 +649,125 @@ public class TeamService {
         }
         return res;
     }
+    public LinkedHashMap<String,Object> queryPlayers(Map<String,Object> map){
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            LinkedHashMap<String,Object> data = new LinkedHashMap<>();
+            PlayerDao playerDao = sqlSession.getMapper(PlayerDao.class);
+            int page = (int)map.get("page");
+            int  pageSize = (int)map.get("pageSize");
+            int start = page*pageSize;
+            map.put("start",start);
+            // System.out.println(map);
+            data.put("count",playerDao.countQuery(map));
+            data.put("data",playerDao.queryPlayer(map));
+
+            return data;
+        }
+    }
+    /// 查询自由球员
+    public LinkedHashMap<String,Object> queryFreePlayers(Map<String,Object> map){
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            LinkedHashMap<String,Object> data = new LinkedHashMap<>();
+            PlayerDao playerDao = sqlSession.getMapper(PlayerDao.class);
+            int page = (int)map.get("page");
+            int  pageSize = (int)map.get("pageSize");
+            int start = page*pageSize;
+            map.put("start",start);
+            data.put("count",playerDao.countFreePlayers(map));
+            data.put("data",playerDao.queryFreePlayers(map));
+            return data;
+        }
+    }
+    public ResponseUnit getNumberList(String teamId){
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            TeamDao teamDao = sqlSession.getMapper(TeamDao.class);
+            ArrayList<LinkedHashMap<String,Integer>> numberList = new ArrayList<>();
+            for (int i = 0; i < 100 ; i++) {
+                LinkedHashMap<String,Integer>  item = new LinkedHashMap<>();
+                item.put("number",i);
+                item.put("exist",0);
+                numberList.add(item);
+            }
+            ArrayList<LinkedHashMap<String,Integer>> teamNumber = teamDao.getNumberListById(teamId);
+            for (LinkedHashMap<String,Integer> item: teamNumber
+                 ) {
+                numberList.set(item.get("number"),item);
+            }
+           // System.out.println(numberList);
+            ResponseUnit res  = new ResponseUnit(200,"",null);
+            res.setData(numberList);
+            return res;
+        }
+
+    }
+     public ResponseUnit createPlayer(Map<String,Object> map) {
+         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+             PlayerDao playerDao = sqlSession.getMapper(PlayerDao.class);
+             String playerId = UUID.randomUUID().toString().replace("-", "").substring(0, 9);
+             while(playerDao.isExistId(playerId)!=null){
+                 playerId = UUID.randomUUID().toString().replace("-", "").substring(0, 9);
+             }
+             map.put("playerId",playerId);
+             int status = playerDao.createPlayer(map);
+             if(status < 0) {
+                 return new ResponseUnit(400, "创建失败", "");
+             }
+             createService(map,1);// 1--首签
+             ManageDao manageDao = sqlSession.getMapper(ManageDao.class);
+             manageDao.createService(map);
+             sqlSession.commit();
+         }
+         return new ResponseUnit(200,"创建成功","");
+     }
+    public ResponseUnit dealPlayer(Map<String,Object> map){
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            int type = (int)map.get("type");
+            map.put("teamId",map.get("homeId"));
+            createService(map,(int)map.get("type"));// 5 退役 4解约  3 交易
+            ManageDao manageDao = sqlSession.getMapper(ManageDao.class);
+            manageDao.createService(map);
+            PlayerDao playerDao = sqlSession.getMapper(PlayerDao.class);
+            String playerId = (String)map.get("playerId");
+            if(type == 5) { //退役
+                playerDao.deletePlayer(playerId,0);
+            }
+            else if(type == 4){ // 解约
+                playerDao.deletePlayer(playerId,2);
+            }
+            else if(type == 3){
+                playerDao.dealPlayer(map);
+                map.replace("teamId",map.get("awayId"));
+                createService(map,(int)map.get("type"));// 5 退役 4解约  3 交易
+            }
+            sqlSession.commit();
+        }
+        return null;
+    }
+    public void createService(Map<String,Object> map,int type){
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            ManageDao manageDao = sqlSession.getMapper(ManageDao.class);
+            Date now = new Date();
+            map.put("startTime",now);
+            String serviceId = UUID.randomUUID().toString().replace("-", "").substring(0, 9);
+            while(manageDao.isExistService(serviceId)!=null){
+                serviceId = UUID.randomUUID().toString().replace("-", "").substring(0, 9);
+            }
+            map.put("status",type);
+            map.put("serviceId",serviceId);
+        }
+    }
+    /// 签约自由球员
+    public ResponseUnit addPlayers(Map<String,Object> map) {
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            PlayerDao playerDao = sqlSession.getMapper(PlayerDao.class);
+            playerDao.addPlayers(map);
+            createService(map,2);// 2--签约
+            ManageDao manageDao = sqlSession.getMapper(ManageDao.class);
+            manageDao.createService(map);
+            sqlSession.commit();
+        }
+        return new ResponseUnit(200,"签约成功","");
+    }
     public void test(){
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
             TeamDao teamDao = sqlSession.getMapper(TeamDao.class);
@@ -670,7 +787,6 @@ public class TeamService {
                         bw.newLine();
 
                     }
-                    System.out.println("----------------------------------------------------------");
                 }
                 bw.close();
             }catch(Exception e) {

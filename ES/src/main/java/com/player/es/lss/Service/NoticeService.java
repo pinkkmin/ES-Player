@@ -20,7 +20,7 @@ public class NoticeService {
                 noticeId = UUID.randomUUID().toString().replace("-", "").substring(0, 9);
             }
             noticeDomain.setNoticeId(noticeId);
-            //System.out.println(noticeDomain);
+          //  System.out.println(noticeDomain);
             int status = noticeDao.createNotice(noticeDomain);
             sqlSession.commit();
             sqlSession.close();

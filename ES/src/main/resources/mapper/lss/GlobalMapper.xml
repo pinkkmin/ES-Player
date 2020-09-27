@@ -16,7 +16,7 @@
         select player_id playerId,player.team_id teamId,team_name teamName,player_name name,player_number number,
         player_logo logo,player_position position,player_height height,player_weight weight,player_wingspan wingspan,date_format(player_birth, '%Y-%m-%d') birth,year(now())-year(player_birth) age
 from player,team
-where player.team_id=#{teamId} and team.team_id=#{teamId}
+where player.team_id=#{teamId} and team.team_id=#{teamId} and player_servicing = 1
 limit #{startNum},#{endNum}
     </select>
 <!--    获取指定赛事的主客队球员信息-->
@@ -49,7 +49,7 @@ limit #{startNum},#{endNum}
     </select>
 <!--    根据球队分组获取球员姓名和id-->
     <select id="getTeamPlayerId" parameterType="String" resultType="java.util.LinkedHashMap">
-        select player_id playerId, player_name playerName from player where team_id=#{teamId}
+        select player_id playerId, player_name playerName from player where team_id=#{teamId} and player_servicing = 1
     </select>
 <!--    获取指定数量通知数量-->
     <select id="getActualNumNotice" parameterType="Map" resultType="NoticeDomain">
@@ -73,7 +73,7 @@ limit #{startNum},#{endNum}
     </select>
 <!--    获取球队球员总量-->
     <select id="getTeamPlayerNum" parameterType="String" resultType="int">
-        select count(player_id) from player where team_id=#{teamId}
+        select count(player_id) from player where team_id=#{teamId} and player_servicing = 1
     </select>
 <!--    获取球员总量-->
     <select id="getPlayerNum" resultType="int">

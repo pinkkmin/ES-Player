@@ -40,4 +40,6 @@ public interface TeamDao {
                        @Param("teamId")String teamId, @Param("start")String start,
                        @Param("status")int status);
     ArrayList<LinkedHashMap<String,Object>> getPlayerService(String playerId);
+    // 获取球队的号码列表
+    ArrayList<LinkedHashMap<String,Integer>> getNumberListById(String teamId);
 }

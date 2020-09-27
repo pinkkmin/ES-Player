@@ -76,4 +76,18 @@ public class MessController {
         LinkedHashMap data =  teamService.getInfoById(teamId);
         return new ResponseUnit(200,"数据请求成功....",data);
     }
+    @RequestMapping("/api/manager/createPlayer")
+    public ResponseUnit createPlayer(@RequestBody Map<String, Object> map) {
+        return teamService.createPlayer(map);
+    }
+    // 处理交易球员
+    @RequestMapping("/api/manager/addPlayers")
+    public ResponseUnit addPlayers(@RequestBody Map<String, Object> map) {
+        return teamService.addPlayers(map);
+    }
+    // 处理交易球员
+    @RequestMapping("/api/manager/dealPlayer")
+    public ResponseUnit dealPlayer(@RequestBody Map<String, Object> map) {
+        return teamService.dealPlayer(map);
+    }
 }
