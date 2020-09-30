@@ -152,7 +152,7 @@ public class ManageService {
             hashMap.put("startNum",(int)hashMap.get("page")*(int)hashMap.get("pageSize"));
             hashMap.put("endNum",(int)hashMap.get("pageSize"));
             List<NoticeDomain> noticeDomains=manageDao.queryNotice(hashMap);
-           // System.out.println(noticeDomains);
+            //System.out.println(hashMap);
             List<Object> list=new LinkedList<>();
             for(NoticeDomain noticeDomain:noticeDomains){
                 NoticePojo noticePojo=new NoticePojo(noticeDomain.getNoticeId(),noticeDomain.getAuthId(),globalDao.getActualUserName(noticeDomain.getAuthId()),

@@ -34,8 +34,9 @@ public class UserController {
     @RequestMapping("/login")
     public ResponseUnit login(@Validated @RequestBody LoginDto loginDto, HttpServletResponse response) {
             UserDomain user = userService.getByUserName(loginDto.getUsername());
-            //throws IllegalArgumentException
-            Assert.notNull(user, "用户不存在");
+            if(user == null) {
+                return new ResponseUnit(400, "用户不存在", "");
+            }
        ///添加加密密码
         if(!user.getPasswd().equals(loginDto.getPassword())){
             return ResponseUnit.fail("用户名或密码不正确");

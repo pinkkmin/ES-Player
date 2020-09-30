@@ -30,9 +30,11 @@ public class TeamService {
     //utils
     private GlobalConstDataUtils globalConstData;
     private DecimalFormat df = new DecimalFormat("#.0");
-    EmailUtils emailUtils = new EmailUtils();
+    EmailUtils emailUtils;
 
     public TeamService() {
+
+        emailUtils= new EmailUtils();
         globalConstData = new GlobalConstDataUtils();
     }
     public LinkedHashMap<String, String> getInfoById(String teamId) {

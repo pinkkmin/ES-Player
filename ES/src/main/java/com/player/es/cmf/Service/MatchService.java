@@ -8,11 +8,13 @@ import com.player.es.cmf.Dao.MatchDataDao;
 import com.player.es.cmf.Dao.PlayerDao;
 import com.player.es.cmf.Dao.TeamDao;
 import com.player.es.cmf.Domain.Dto.MagMatchDto;
+import com.player.es.cmf.Domain.Dto.MatchDataDto;
 import com.player.es.cmf.Domain.Dto.QueryMatchDto;
 import com.player.es.cmf.Domain.POJO.MatchDataPojo;
 import com.player.es.cmf.Domain.POJO.TeamComparePojo;
 import com.player.es.Config.MybatisConfig;
 import com.player.es.cmf.Domain.POJO.MagMatchPojo;
+import org.apache.commons.collections.ArrayStack;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -227,8 +229,6 @@ public class MatchService {
         String fileName = file.getOriginalFilename();
         String lastName = fileName.substring(fileName.lastIndexOf(".")+1);
         LinkedHashMap<String,Object> fileData ;
-        //System.out.println(fileName);
-        //System.out.println(lastName);
         if(lastName.equals("csv")) {
             fileData =  fileUtils.doMatchDataByCSV(file);
         }
@@ -293,28 +293,98 @@ public class MatchService {
     /**按日期每日比赛**/
     public ResponseUnit getMatchByDay(String season, String month) {
         ResponseUnit data = new ResponseUnit();
-        ArrayList<LinkedHashMap<String,Object>> res = new ArrayList<>();
+        ArrayList<LinkedHashMap<String, Object>> res = new ArrayList<>();
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
             MatchDao matchDao = sqlSession.getMapper(MatchDao.class);
-            ArrayList<String> dayList = matchDao.getDayListByMonth(season,month);
-            if(dayList.size()==0) {
+            ArrayList<String> dayList = matchDao.getDayListByMonth(season, month);
+            if (dayList.size() == 0) {
                 data.setMessage("该月份没有比赛,显示最近比赛");
-                dayList =  matchDao.getDayByLastMonth(season);
-            }
-            else {
+                dayList = matchDao.getDayByLastMonth(season);
+            } else {
                 data.setMessage("当月的比赛已显示");
             }
-        //    System.out.println(dayList);
-            for (String gameDay: dayList
-                 ) {
-                    LinkedHashMap<String,Object> item = new LinkedHashMap<>();
-                    item.put("day",gameDay);
-                    item.put("data",matchDao.getMatchByDay(season,gameDay));
-                    res.add(item);
+            //    System.out.println(dayList);
+            for (String gameDay : dayList
+            ) {
+                LinkedHashMap<String, Object> item = new LinkedHashMap<>();
+                item.put("day", gameDay);
+                item.put("data", matchDao.getMatchByDay(season, gameDay));
+                res.add(item);
             }
         }
         data.setCode(200);
         data.setData(res);
         return data;
+    }
+    void initMatchDataList(ArrayList<LinkedHashMap<String,Object>> data){
+        for (LinkedHashMap<String,Object> res: data
+             ) {
+            res.put("score",0);
+            res.put("assist",0);
+            res.put("block",0);
+            res.put("foul",0);
+            res.put("free",0);
+            res.put("bound",0);
+            res.put("steal",0);
+            res.put("turnOver",0);
+            res.put("time",0);
+            res.put("join",true); // 是否上场
+        }
+    }
+    public LinkedHashMap<String,Object> queryNoDataMatch(Map<String,Object> item){
+        LinkedHashMap<String,Object> res  = new LinkedHashMap<>();
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            MatchDao matchDao = sqlSession.getMapper(MatchDao.class);
+            res.put("count", matchDao.countNoDataMatch(item));
+            ArrayList<LinkedHashMap<String,Object>> dataList = new ArrayList<>();
+            ArrayList<LinkedHashMap<String,Object>> matchList = matchDao.queryNoDataMatch(item);
+            for (LinkedHashMap<String,Object> match: matchList
+                 ) {
+                String homeId = (String)match.get("home"),awayId = (String)match.get("away");
+                ArrayList<LinkedHashMap<String,Object>> homeData = matchDao.getPlayerByTeam(homeId);
+                ArrayList<LinkedHashMap<String,Object>> awayData = matchDao.getPlayerByTeam(awayId);
+              //  System.out.println(homeData);
+                initMatchDataList(homeData);
+                initMatchDataList(awayData);
+                LinkedHashMap<String,Object> data = new LinkedHashMap<>();
+                data.put("match",match);
+                data.put("awayData",awayData);
+                data.put("homeData",homeData);
+                dataList.add(data);
+            }
+            /// 获取 主客的球员 设置数据为全0
+            // 编写集体更新 接口
+            res.put("data", dataList);
+        }
+        return res;
+    }
+    public  int insertMatchData(String matchId,ArrayList<LinkedHashMap<String,Object>> homeData,ArrayList<LinkedHashMap<String,Object>> awayData){
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            MatchDataDao matchDataDao = sqlSession.getMapper(MatchDataDao.class);
+            for (LinkedHashMap<String,Object> item: homeData
+                 ) {
+                boolean join = (boolean)item.get("join");
+                if(join) {
+                    item.put("isHome", 1);
+                    item.put("matchId", matchId);
+                    matchDataDao.insertMatchData(item);
+                }
+            }
+            for (LinkedHashMap<String,Object> item: awayData
+            ) {
+                boolean join = (boolean)item.get("join");
+                if(join) {
+                    item.put("isHome", 0);
+                    item.put("matchId", matchId);
+                    matchDataDao.insertMatchData(item);
+                }
+            }
+            int homeScore = matchDataDao.sumOfMatch(matchId,1);
+            int awayScore = matchDataDao.sumOfMatch(matchId,0);
+            matchDataDao.updateMatchScore(matchId,homeScore,awayScore);
+            sqlSession.commit();
+        }
+
+        return 1;
     }
 }

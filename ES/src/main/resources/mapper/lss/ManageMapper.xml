@@ -95,8 +95,11 @@
     <select id="queryNotice" parameterType="Map" resultType="NoticeDomain">
         select * from notice
         <where>
+            <if test="userId!='121387'">
+                 auth_id = #{userId}
+            </if>
             <if test="teamId!='' and teamId != null">
-                and home_id=#{teamId} or away_id=#{teamId}
+                and (home_id=#{teamId} or away_id=#{teamId})
             </if>
             <if test="playerName!=null and playerName!=''">
                 and player_name=#{playerName}
@@ -109,6 +112,9 @@
     <select id="getQueryNoticeNum" parameterType="Map" resultType="int">
         select count(notice_id) from notice
         <where>
+            <if test="userId!='121387'">
+                auth_id = #{userId}
+            </if>
             <if test="teamId!='' and teamId != null">
                 and home_id=#{teamId} or away_id=#{teamId}
             </if>

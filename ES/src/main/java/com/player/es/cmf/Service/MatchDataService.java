@@ -7,6 +7,7 @@ import com.player.es.cmf.Dao.MatchDataDao;
 import com.player.es.cmf.Dao.TeamDao;
 import com.player.es.Domain.TeamDomain;
 import com.player.es.Config.MybatisConfig;
+import com.player.es.cmf.Domain.Dto.MatchDataDto;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Service;
 
@@ -161,12 +162,16 @@ public class MatchDataService {
         return dataList;
     }
     /**root-修改赛事记录数据**/
-    public MatchDataDomain editMatchData(MatchDataDomain mdd) {
+    public MatchDataDomain editMatchData(MatchDataDto mdd) {
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
             MatchDataDao matchDataDao = sqlSession.getMapper(MatchDataDao.class);
            int data = matchDataDao.editMatchData(mdd);
-            sqlSession.commit();
+           String matchId = mdd.getMatchId();
+           int homeScore = matchDataDao.sumOfMatch(matchId,1);
+           int awayScore = matchDataDao.sumOfMatch(matchId,0);
+           matchDataDao.updateMatchScore(matchId,homeScore,awayScore);
            if(data==0)return null;
+            sqlSession.commit();
            return matchDataDao.queryMatchData(mdd.getMatchId(), mdd.getPlayerId());
 
         }

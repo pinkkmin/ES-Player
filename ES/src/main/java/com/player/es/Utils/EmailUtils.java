@@ -23,8 +23,8 @@ public class EmailUtils {
             InputStream inputStream = EmailUtils.class.getClassLoader().getResourceAsStream(PROPERTIES_DEFAULT);
             properties.load(inputStream);
             inputStream.close();
-            host = properties.getProperty("mailHost");
             port = 465;
+            host = properties.getProperty("mailHost");
             userName = properties.getProperty("mailUser");
             passWord = properties.getProperty("mailPwd");
             timeout = properties.getProperty("mailTimeOut");
@@ -36,7 +36,7 @@ public class EmailUtils {
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
         javaMailSender.setHost(host);
         javaMailSender.setUsername(userName);
-        javaMailSender.setPort(25);
+        javaMailSender.setPort(port);
         javaMailSender.setPassword(passWord);
         javaMailSender.setDefaultEncoding("UTF-8");
         Properties p = new Properties();
@@ -62,7 +62,6 @@ public class EmailUtils {
             content += "<h1 style=\"font-size:35px;color:#409EFF;\">"+keyNumber+"</h1>";
             messageHelper.setText( content,true);
             javaMailSender.send(mimeMessage);
-         //   System.out.println("__________________");
             return true;
         }
         catch (Exception e){

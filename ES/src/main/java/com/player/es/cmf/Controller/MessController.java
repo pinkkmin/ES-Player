@@ -3,6 +3,7 @@ package com.player.es.cmf.Controller;
 import com.player.es.Domain.MatchDataDomain;
 import com.player.es.Utils.ResponseUnit;
 import com.player.es.cmf.Domain.Dto.MagMatchDto;
+import com.player.es.cmf.Domain.Dto.MatchDataDto;
 import com.player.es.cmf.Domain.Dto.QueryMatchDto;
 import com.player.es.cmf.Service.MatchDataService;
 import com.player.es.cmf.Service.MatchService;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,7 +67,7 @@ public class MessController {
 
     // root-赛事管理-编辑球员赛事记录
     @RequestMapping("/api/manager/editMatchData")
-    public ResponseUnit magEditMatchData(@RequestBody MatchDataDomain mdd) {
+    public ResponseUnit magEditMatchData(@RequestBody MatchDataDto mdd) {
         MatchDataDomain data = mdService.editMatchData(mdd);
         if(data == null) return new ResponseUnit(220,"未发生修改....",null);
         return new ResponseUnit(200,"修改成功",data);
@@ -89,5 +91,26 @@ public class MessController {
     @RequestMapping("/api/manager/dealPlayer")
     public ResponseUnit dealPlayer(@RequestBody Map<String, Object> map) {
         return teamService.dealPlayer(map);
+    }
+    @RequestMapping("/api/manager/queryNoMatch")
+    public ResponseUnit queryNoMatch(@RequestBody Map<String, Object> map) {
+        int start = (int)map.get("page")*(int)map.get("pageSize");
+        map.put("start",start);
+        ResponseUnit res = new ResponseUnit();
+        res.setCode(200);
+        res.setMessage("");
+        res.setData(matchService.queryNoDataMatch(map));
+        return res;
+    }
+    @RequestMapping("/api/manager/insertMatchData")
+    public ResponseUnit insertMatchData(@RequestBody Map<String, Object> map) {
+        ResponseUnit res = new ResponseUnit(200,"","");
+        Map<String, Object> matchInfo = (Map)map.get("match");
+        ArrayList<LinkedHashMap<String,Object>> homeData = (ArrayList)map.get("homeData");
+        ArrayList<LinkedHashMap<String,Object>> awayData = (ArrayList)map.get("awayData");
+        String matchId = (String)matchInfo.get("matchId");
+       int code =  matchService.insertMatchData(matchId,homeData,awayData);
+       if(code!=1) res.setMessage("错误");
+        return res;
     }
 }

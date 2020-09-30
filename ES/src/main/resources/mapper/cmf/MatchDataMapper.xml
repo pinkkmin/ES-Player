@@ -7,6 +7,11 @@
 <select id="test" resultType="MatchDataDomain">
     select * from  match_data
 </select>
+<!--    插入数据-->
+    <insert id="insertMatchData" parameterType="map">
+         INSERT INTO match_data(match_id, player_id,is_home,score,bound,assist,match_time,block,steal,foul,turnover,free,finish)
+        VALUES (#{matchId},#{playerId},#{isHome},#{score},#{bound},#{assist},#{time},#{block},#{steal},#{foul},#{turnOver},#{free},0)
+    </insert>
     <select id="initMatchDataList" parameterType="MatchDataDomain">
         INSERT INTO match_data(match_id, player_id,is_home,score,bound,assist,match_time,block,steal,foul,turnover,free,finish)
         VALUES (#{matchId},#{playerId},#{isHome},#{score},#{bound},#{assist},#{matchTime},#{block},#{steal},#{foul},#{turnover},#{free},0)
@@ -56,14 +61,24 @@
         from match_,match_data
         where match_.match_id = match_data.match_id AND match_season = #{season}
     </select>
-    <update id="editMatchData" parameterType="MatchDataDomain" >
+    <update id="editMatchData" parameterType="MatchDataDto" >
         UPDATE match_data
         SET score = #{score},assist=#{assist},bound=#{bound},steal=#{steal},block=#{block},foul=#{foul},
-            turnover=#{turnover},free=#{free},match_time=#{matchTime}
+            turnover=#{turnOver},free=#{free},match_time=#{time}
         where match_id = #{matchId} and player_id = #{playerId};
     </update>
     <select id="queryMatchData" parameterType="String" resultType="MatchDataDomain">
         select  * from match_data
         where match_id = #{matchId} and player_id = #{playerId};
     </select>
+    <select id="sumOfMatch" resultType="int">
+        select sum(score)
+        from match_data
+        where match_id =#{matchId} and is_home =#{isHome};
+    </select>
+    <update id="updateMatchScore">
+        update match_
+        set home_score = #{homeScore} , away_score = #{awayScore}
+        where match_id = #{matchId};
+    </update>
 </mapper>

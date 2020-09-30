@@ -27,8 +27,15 @@
     <update id="updateEmail" parameterType="Map">
         update user_info set email=#{newEmail} where user_id=#{userId}
     </update>
-    <update id="altUserName" parameterType="Map">
-        update user_info set user_name=#{userName} where user_id = #{userId}
+    <update id="altUserName" parameterType="String">
+        update user_info
+        set user_name=#{userName}
+        where user_id = #{userId}
+    </update>
+    <update id="altTeam" parameterType="String">
+        update user_info
+        set team_id = #{teamId}
+        where user_id = #{userId}
     </update>
     <update id="altPasswd" parameterType="String">
         update user_info set passwd=#{passwd} where user_id = #{userId}

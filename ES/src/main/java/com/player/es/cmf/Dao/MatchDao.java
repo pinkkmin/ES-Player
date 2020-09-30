@@ -68,4 +68,9 @@ public interface MatchDao {
     ArrayList<String> getDayByLastMonth(String season);
     // 赛事-按天算
     ArrayList<LinkedHashMap<String,Object>> getMatchByDay(String season,String day);
+    ///查询 为录入数据的比赛--且结束 场次
+    int countNoDataMatch(Map<String,Object> map);
+    ArrayList<LinkedHashMap<String,Object>> queryNoDataMatch(Map<String,Object> item);
+    //获取球队的球员列表
+    ArrayList<LinkedHashMap<String,Object>> getPlayerByTeam(String teamId);
 }

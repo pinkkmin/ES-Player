@@ -23,11 +23,6 @@ public class TeamController {
     @Autowired
     TeamService teamService;
 
-    @RequestMapping("/api/team/createPlayer")
-    public ResponseUnit createPlayer(@RequestBody Map<String, String> map){
-        return null;
-    }
-
     @RequestMapping("/api/team/analysis/lastSeven")
     public ResponseUnit lastSevenMatch(@RequestBody Map<String, String> map){
         String teamId = map.get("teamId"), season= map.get("season");
@@ -91,7 +86,5 @@ public class TeamController {
     public ResponseUnit getNumberList(@RequestBody Map<String, String> map) {
         String teamId = map.get("teamId");
         return ResponseUnit.succ(teamService.getNumberList(teamId));
-
-
     }
 }

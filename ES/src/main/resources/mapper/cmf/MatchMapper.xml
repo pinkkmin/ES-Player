@@ -235,4 +235,36 @@
 	    AND home.team_id = match_home AND away.team_id = match_away
 	    order by match_date desc;
     </select>
+    <select id="countNoDataMatch" parameterType="map" resultType="int">
+        select count(*) from match_
+        where (home_score = 0 or away_score=0) and match_status = 1 and match_season =#{season}
+        <if test="homeId!=null and homeId!=''">
+           AND  match_home = #{homeId}
+        </if>
+        <if test="awayId!=null and awayId!=''">
+            AND  match_away = #{awayId}
+        </if>
+    </select>
+<!--    -->
+    <select id="queryNoDataMatch" parameterType="map" resultType="java.util.LinkedHashMap">
+        select match_season season,match_.match_id matchId,DATE_FORMAT(match_date,'%Y-%m-%d %H:%i') date,
+        match_home home,home.team_name homeName,match_away away,away.team_name awayName,
+        home_score homeScore,away_score awayScore,match_status status
+        from match_,team home ,team away
+        where  (home.team_id = match_home AND away.team_id=match_away) AND match_season=#{season}
+        and (home_score = 0 or away_score=0) and match_status = 1
+        <if test="homeId!=''and homeId != null">
+            AND match_home = #{homeId}
+        </if>
+        <if test="awayId!=null and awayId  !=''">
+            AND match_away = #{awayId}
+        </if>
+        order by match_date desc
+        limit #{start},#{pageSize};
+    </select>
+    <select id="getPlayerByTeam" parameterType="String" resultType="java.util.LinkedHashMap">
+        select player_id playerId, player_name name, player_number number
+        from player
+        where player_servicing = 1 and team_id = #{teamId}
+    </select>
 </mapper>

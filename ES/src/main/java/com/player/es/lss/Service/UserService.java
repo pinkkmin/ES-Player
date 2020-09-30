@@ -8,6 +8,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -18,6 +19,16 @@ public class UserService {
         try(SqlSession sqlSession=MybatisConfig.getSqlSession()){
             UserDao userDao = sqlSession.getMapper(UserDao.class);
             LinkedHashMap<String,Object> res  =userDao.getUserInformation(userId);
+            int role = (int)res.get("role");
+            ArrayList<String> roleList = new ArrayList<>();
+            if(role == 1) {
+              roleList.add("admin");
+            }
+            else if(role == 2) {
+                roleList.add("root");
+            }
+            else roleList.add("user");
+            res.put("roles",roleList);
             LinkedHashMap<String,Object> team = new LinkedHashMap<>();
             team.put("teamName",res.get("teamName"));
             team.put("teamId",res.get("teamId"));
@@ -66,17 +77,19 @@ public class UserService {
             UserDao userDao = sqlSession.getMapper(UserDao.class);
             String userName  = (String) map.get("userName");
             String userId = (String)map.get("userId");
+            Map team = (Map)map.get("team");
+            String teamId = (String)team.get("teamId");
             UserDomain  user =  userDao.getByUserName(userName);
-            if(user != null) {
-                return new ResponseUnit(400,"用户名已被占用,请重新输入","");
+            if(user != null ) {
+                if(!user.getUserID().equals(userId)) //ID相同 说明同一用户未改名
+                    return new ResponseUnit(400,"用户名已被占用,请重新输入","");
             }
-            else {
-                int status  = userDao.altUserName(userId,userName);
-                if(status<0) {
-                    return new ResponseUnit(400,"修改失败","");
+            int status  = userDao.altUserName(userId,userName);
+            if(status<0) {
+                    return new ResponseUnit(400, "修改失败", "");
                 }
-                sqlSession.commit();
-            }
+            userDao.altTeam(userId,teamId);
+            sqlSession.commit();
             return new ResponseUnit(200,"修改成功",getUserInformation(userId));
         }
     }
