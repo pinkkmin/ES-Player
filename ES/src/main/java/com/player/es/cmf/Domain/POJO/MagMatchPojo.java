@@ -13,7 +13,7 @@ import java.util.Map;
 public class MagMatchPojo {
     String season;
     String matchId;
-    @JsonFormat(pattern = "yyyy-MM-dd hh:mm",timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm",timezone = "GMT+8")
     Date date;
     LinkedHashMap<String,String> home;
     LinkedHashMap<String,String> away;
@@ -25,6 +25,7 @@ public class MagMatchPojo {
         this.season = season.toString();
         this.matchId = matchId.toString();
         this.date = (Date)date;
+        //System.out.println(this.date);
         this.home  = new LinkedHashMap<>();
         home.put("teamId",homeId.toString());
         home.put("name",homeName.toString());

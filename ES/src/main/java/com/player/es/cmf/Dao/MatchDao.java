@@ -11,6 +11,7 @@ public interface MatchDao {
     //获取-本赛季-名称
     LinkedHashMap<String,Object> getCurrSeason();
     //初始化match列表
+    int insertMatch(Map<String,Object> map);
     void initMatchList(MatchDomain md);
     LinkedHashMap getTeamId(String matchId);
     ArrayList<String> getSeasonList();

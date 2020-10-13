@@ -10,7 +10,7 @@ import java.util.Date;
 public class MagMatchDto {
     String matchId;
     Integer status;
-    @JsonFormat(pattern = "yyyy-MM-dd hh:mm")
+    @JsonFormat(timezone = "GMT+8",pattern = "yyyy-MM-dd hh:mm")
     Date date;
     String season;
     TeamPojo home;

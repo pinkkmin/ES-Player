@@ -111,4 +111,11 @@ public class GlobalController {
         String season = map.get("season");
         return new ResponseUnit(200,"", teamService.getTeamInfoSort(teamId,season));
     }
+
+    @RequestMapping("/api/manager/createMatch")
+    public ResponseUnit createMatch(@RequestBody Map<String,Object> map) {
+        int status = mService.insertMatch(map);
+        if(status <= 0) return new ResponseUnit(400,"","");
+        return new ResponseUnit(200,"", "");
+    }
 }

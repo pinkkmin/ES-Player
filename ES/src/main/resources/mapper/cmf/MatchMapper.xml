@@ -7,6 +7,10 @@
     <select id="getCurrSeason" resultType="java.util.LinkedHashMap">
         select max(match_season) season from match_
     </select>
+    <insert id="insertMatch" parameterType="map">
+    INSERT  INTO match_(match_id,match_date,match_season,match_status,home_score,away_score,match_home,match_away)
+    VALUES(#{matchId},#{date},#{season},0,0,0,#{home},#{away})
+    </insert>
     <select id="initMatchList" parameterType="MatchDomain">
     INSERT
     INTO match_(match_id,match_date,match_season,match_status,home_score,away_score,match_home,match_away)

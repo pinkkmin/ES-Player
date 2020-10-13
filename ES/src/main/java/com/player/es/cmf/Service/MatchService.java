@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -196,7 +197,6 @@ public class MatchService {
     public LinkedHashMap<String,Object> queryMatch(QueryMatchDto item){
         LinkedHashMap<String,Object> data  = new LinkedHashMap<>();
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
-            LinkedHashMap<String,Object> reMap = new LinkedHashMap<>();
             MatchDao matchDao = sqlSession.getMapper(MatchDao.class);
             ArrayList<LinkedHashMap<String, Object>> matchList = matchDao.queryMatch(item);
             int count = matchDao.queryMatchCount(item);
@@ -252,6 +252,7 @@ public class MatchService {
         }
         String homeId = (String)match.get("homeId");
         String awayId = (String)match.get("awayId");
+        //System.out.println(fileData);
         ArrayList<MatchDataPojo> homePlayer = (ArrayList)fileData.get("home"),awayPlayer = (ArrayList)fileData.get("away");
         ArrayList<MatchDataPojo> home = new ArrayList<>(),away = new ArrayList<>();
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
@@ -386,5 +387,26 @@ public class MatchService {
         }
 
         return 1;
+    }
+
+    public int insertMatch(Map<String,Object> map) {
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            MatchDao matchDao = sqlSession.getMapper(MatchDao.class);
+            String id = UUID.randomUUID().toString().replace("-", "").substring(0, 9);
+            while (matchDao.isExist(id) != null) {
+                id = UUID.randomUUID().toString().replace("-", "").substring(0, 9);
+            }
+            map.put("matchId",id);
+            SimpleDateFormat smpd = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            Date date = smpd.parse(map.get("date").toString());
+            map.put("date",date);
+
+           int status =  matchDao.insertMatch(map);
+            sqlSession.commit();
+            return status;
+        } catch (ParseException e) {
+            e.printStackTrace();
+           return 0;
+        }
     }
 }

@@ -18,6 +18,7 @@ public class MatchDataPojo {
     int block;
     int turnOver;
     int free;
+    boolean join;
     Integer utils(String value){
         Double value1 = Double.valueOf(value);
         return value1.intValue();
@@ -25,6 +26,7 @@ public class MatchDataPojo {
     public MatchDataPojo(){}
     // Map name: key-value -> index-item like 3-score
     public MatchDataPojo(Map<Integer, String> name, String[] itemList) {
+        join = true;
         this.playerId = "0";
         this.number = 0;
         for (int i = 0; i < itemList.length; i++) {

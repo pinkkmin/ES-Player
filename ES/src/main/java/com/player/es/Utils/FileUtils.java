@@ -64,12 +64,10 @@ public class FileUtils {
                return data;
            }
            itemList = br.readLine().split(",");
-           System.out.println(itemList.length);
            ArrayList<MatchDataPojo> homePlayer = new ArrayList<>(),awayPlayer = new ArrayList<>();
           while(!itemList[0].equals("end") && !itemList[0].equals("")) {
               homePlayer.add(new MatchDataPojo(name, itemList));
               line = br.readLine();
-              System.out.println(line);
               itemList = line.split(",");
               if(itemList.length == 0) break;
           }
@@ -82,11 +80,8 @@ public class FileUtils {
           while(!itemList[0].equals("end") && !itemList[0].equals("")) {
                awayPlayer.add(new MatchDataPojo(name,itemList));
               line = br.readLine();
-              System.out.println(line);
               itemList = line.split(",");
-//              System.out.println(itemList.length);
               if(itemList.length == 0) break;
-//              System.out.println(itemList[0]);
            }
            data.put("away",awayPlayer);
            data.put("code",200);
@@ -123,11 +118,11 @@ public class FileUtils {
                 int col = sheet.getRow(row).getLastCellNum();
                 String itemList[] = new String[col];
                 for (int j = 0; j < col ; j++) {
-                    System.out.print(sheet.getRow(row).getCell(j).toString()+" ");
+               //     System.out.print(sheet.getRow(row).getCell(j).toString()+" ");
                     itemList[j] = sheet.getRow(row).getCell(j).toString();
                 }
                 homePlayer.add(new MatchDataPojo(name, itemList));
-                System.out.println();
+              //  System.out.println();
             }
             for(;row<last;row++) {
                 if(sheet.getRow(row) == null) {
@@ -137,12 +132,12 @@ public class FileUtils {
                 int col = sheet.getRow(row).getLastCellNum();
                 String itemList[] = new String[col];
                 for (int j = 0; j < col ; j++) {
-                    System.out.print(sheet.getRow(row).getCell(j)+" ");
+                  //  System.out.print(sheet.getRow(row).getCell(j)+" ");
                     itemList[j] = sheet.getRow(row).getCell(j).toString();
 
                 }
                 awayPlayer.add(new MatchDataPojo(name, itemList));
-                System.out.println();
+             //   System.out.println();
             }
             data.put("home",homePlayer);
             data.put("away",awayPlayer);
@@ -151,7 +146,7 @@ public class FileUtils {
             data.put("code",401);
             e.printStackTrace();
         }
-        System.out.println(data);
+      //  System.out.println(data);
         return data;
     }
 }
