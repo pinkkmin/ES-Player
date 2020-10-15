@@ -142,4 +142,35 @@ public class GlobalService {
             return linkedHashMap;
         }
     }
+  // 当前赛季
+    public String getSeason() {
+        try(SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            GlobalDao globalDao = sqlSession.getMapper(GlobalDao.class);
+            return globalDao.getSetting("season");
+        }
+    }
+    public String updateSeason (){
+        try(SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            GlobalDao globalDao = sqlSession.getMapper(GlobalDao.class);
+            String oldValue = globalDao.getSetting("season");
+            String vl[] = oldValue.split("-");
+            int next = Integer.valueOf(vl[1]);
+            String newValue = vl[1] + "-"+(++next);
+            globalDao.updateSetting("season",newValue);
+            sqlSession.commit();
+            return newValue;
+        }
+    }
+    public String backSeason(){
+        try(SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            GlobalDao globalDao = sqlSession.getMapper(GlobalDao.class);
+            String oldValue = globalDao.getSetting("season");
+            String vl[] = oldValue.split("-");
+            int next = Integer.valueOf(vl[0]);
+            String newValue = (--next) + "-"+vl[0];
+            globalDao.updateSetting("season",newValue);
+            sqlSession.commit();
+            return newValue;
+        }
+    }
 }

@@ -75,10 +75,14 @@ public class GlobalController {
     }
     @RequestMapping("/api/global/getKeyNumber")
     public ResponseUnit getKeyNumber(@RequestBody Map<String,String> map) {
-        String email = map.get("email");
-       // System.out.println(map);
-        int type = Integer.valueOf(map.get("type"));
-        return teamService.getKeyNumber(email,type);
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            UserDao userDao = sqlSession.getMapper(UserDao.class);
+            String email = map.get("email");
+            String userId  = userDao.getUserIdByEmail(email);
+            if(userId==null) return new ResponseUnit(400,"邮箱尚未注册,请先注册",null);
+            int type = Integer.valueOf(map.get("type"));
+            return teamService.getKeyNumber(email, type);
+        }
     }
     @RequestMapping("/api/global/regKeyNumber")
     public ResponseUnit regKeyNumber(@RequestBody Map<String,String> map) {

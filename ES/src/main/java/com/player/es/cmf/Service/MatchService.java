@@ -14,6 +14,7 @@ import com.player.es.cmf.Domain.POJO.MatchDataPojo;
 import com.player.es.cmf.Domain.POJO.TeamComparePojo;
 import com.player.es.Config.MybatisConfig;
 import com.player.es.cmf.Domain.POJO.MagMatchPojo;
+import com.player.es.lss.Dao.GlobalDao;
 import org.apache.commons.collections.ArrayStack;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Service;
@@ -34,8 +35,12 @@ public class MatchService {
     }
     public LinkedHashMap<String,Object> getCurSeason(){
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
-            MatchDao matchDao = sqlSession.getMapper(MatchDao.class);
-           return matchDao.getCurrSeason();
+            GlobalDao globalDao = sqlSession.getMapper(GlobalDao.class);
+            LinkedHashMap<String,Object> res = new LinkedHashMap<>();
+            res.put("season",globalDao.getSetting("season"));
+            return res;
+           // MatchDao matchDao = sqlSession.getMapper(MatchDao.class);
+          // return matchDao.getCurrSeason();
         }
     }
     public LinkedHashMap getTeamSort(String teamId, String season) {

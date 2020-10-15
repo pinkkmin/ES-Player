@@ -22,4 +22,5 @@ public interface UserDao {
     LinkedHashMap<String,Object> getUserInformation(String userId);
     ////
     String getUserIdByEmail(String userEmail);
+    int delUser(String userId);
 }

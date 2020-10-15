@@ -112,4 +112,15 @@ public class UserService {
             }
         }
     }
+    public  int logout(String userId,String passwd) {
+        try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
+            UserDao userDao = sqlSession.getMapper(UserDao.class);
+            String checkPasswd = userDao.getPwdByUserID(userId);
+           // System.out.println(checkPasswd.equals(passwd));
+            if(!checkPasswd.equals(passwd)) return -1; //密码错误
+            int status = userDao.delUser(userId);
+            sqlSession.commit();
+            return status;  // 0-注销失败
+        }
+    }
 }

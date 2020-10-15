@@ -73,13 +73,28 @@ public class UserController {
     public ResponseUnit email_change(@RequestBody Map<String, Object> map){
        return userService.altUserInfo(map);
     }
+    @RequiresAuthentication
     @RequestMapping("/api/user/logout")
     public ResponseUnit logout(@RequestHeader ("Authorization") String jwt)
     {
         Claims claim =  jwtUtils.getClaimByToken(jwt);
         claim.remove("sub");
         claim.remove("exp");
-        //注销
         return new ResponseUnit(200,"","");
+    }
+    @RequiresAuthentication
+    @RequestMapping("/api/user/del")
+    public ResponseUnit del(@RequestBody Map<String,String> map,@RequestHeader ("Authorization") String jwt)
+    {
+
+        Claims claim =  jwtUtils.getClaimByToken(jwt);
+        String userId = claim.getSubject();
+        if(userId.equals("121387")) return new ResponseUnit(400,"root不可注销","");
+        int code = userService.logout(userId,map.get("passwd"));
+        //注销
+        //System.out.println(map.get("passwd"));
+        if(code == 0) return new ResponseUnit(400,"注销失败","");
+        else if(code == -1) return new ResponseUnit(400,"密码错误","");
+        return new ResponseUnit(200,"注销成功","");
     }
 }

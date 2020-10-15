@@ -54,4 +54,7 @@ public interface GlobalDao {
 
 //    获取通知总量
     int getNoticeNum();
+    // 获取配置文件
+    String getSetting(String name);
+    int updateSetting(String name, String value);
 }

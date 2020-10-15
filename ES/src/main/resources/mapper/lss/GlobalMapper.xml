@@ -83,4 +83,12 @@ limit #{startNum},#{endNum}
     <select id="getNoticeNum" resultType="int">
         select count(notice_id) from notice
     </select>
+    <select id="getSetting" parameterType="String" resultType="String">
+        select value from setting_info where name = #{name};
+    </select>
+    <update id="updateSetting" parameterType="String">
+        update setting_info
+        set value = #{value}
+        where name = #{name};
+    </update>
 </mapper>

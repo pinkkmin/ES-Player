@@ -73,5 +73,21 @@ public class LGlobalController {
         return ResponseUnit.succ(200, "获取成功",globalService.getAllNotices(startNum,endNum));
     }
 
-//
+    @GetMapping("/settings/season")
+    public ResponseUnit getSeason() {
+        String season = globalService.getSeason();
+        return new ResponseUnit(200,"",season);
+    }
+//   更新 配置信息-season
+    @GetMapping("/updSeason")
+    public ResponseUnit updSeason(){
+        String value = globalService.updateSeason();
+        return new ResponseUnit(200,"",value);
+    }
+    @GetMapping("/backSeason")
+    public ResponseUnit backSeason(){
+        String value = globalService.backSeason();
+        return new ResponseUnit(200,"",value);
+    }
+
 }

@@ -10,18 +10,20 @@
     -->
 <!--    获取所有用户信息-->
     <select id="getByUserID" parameterType="String" resultType="UserDomain">
-    SELECT  * FROM user_info WHERE user_id = #{userID}
+    SELECT  * FROM user_info WHERE user_id = #{userID};
     </select>
     <select id="getPwdByUserID" parameterType="String" resultType="String">
-    SELECT  passwd FROM user_info WHERE user_id = #{userId}
+    SELECT  passwd FROM user_info WHERE user_id = #{userId} and status = 1;
     </select>
 <!--    通过用户名查找用户信息-->
     <select id="getByUserName" parameterType="String" resultType="UserDomain">
-    SELECT  * FROM user_info WHERE user_name = #{userName}
+    SELECT  * FROM user_info WHERE user_name = #{userName} and status = 1;
     </select>
 <!--    修改密码-->
     <update id="updatePassword" parameterType="Map">
-        update user_info set passwd=#{password} where user_id = #{userId}
+        update user_info set passwd=#{password},
+         status = 1
+         where user_id = #{userId}
     </update>
 <!--    更新邮箱-->
     <update id="updateEmail" parameterType="Map">
@@ -59,4 +61,10 @@
     <select id="getUserIdByEmail" parameterType="String" resultType="String">
         select user_id from user_info where email=#{userEmail}
     </select>
+<!--    注销 root不可注销-->
+    <update id="delUser" parameterType="String">
+        update  user_info
+        set  status = 0
+        where user_id = #{userId} and user_id != '121387';
+    </update>
 </mapper>
