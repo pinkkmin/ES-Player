@@ -151,8 +151,9 @@ public class ManageService {
             GlobalDao globalDao=sqlSession.getMapper(GlobalDao.class);
             hashMap.put("startNum",(int)hashMap.get("page")*(int)hashMap.get("pageSize"));
             hashMap.put("endNum",(int)hashMap.get("pageSize"));
+          ///  System.out.println(hashMap);
             List<NoticeDomain> noticeDomains=manageDao.queryNotice(hashMap);
-            //System.out.println(hashMap);
+
             List<Object> list=new LinkedList<>();
             for(NoticeDomain noticeDomain:noticeDomains){
                 NoticePojo noticePojo=new NoticePojo(noticeDomain.getNoticeId(),noticeDomain.getAuthId(),globalDao.getActualUserName(noticeDomain.getAuthId()),
@@ -164,6 +165,7 @@ public class ManageService {
             LinkedHashMap<String,Object> linkedHashMap=new LinkedHashMap<>();
             linkedHashMap.put("count",manageDao.getQueryNoticeNum(hashMap));
             linkedHashMap.put("data",list);
+           // System.out.println(linkedHashMap);
             return linkedHashMap;
 
         }

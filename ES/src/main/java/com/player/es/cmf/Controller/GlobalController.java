@@ -73,6 +73,8 @@ public class GlobalController {
         }
         return res;
     }
+
+    //发送验证码
     @RequestMapping("/api/global/getKeyNumber")
     public ResponseUnit getKeyNumber(@RequestBody Map<String,String> map) {
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
@@ -84,6 +86,8 @@ public class GlobalController {
             return teamService.getKeyNumber(email, type);
         }
     }
+
+    //注册验证码 发送
     @RequestMapping("/api/global/regKeyNumber")
     public ResponseUnit regKeyNumber(@RequestBody Map<String,String> map) {
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
@@ -95,20 +99,27 @@ public class GlobalController {
             return teamService.getKeyNumber(email,type);
         }
     }
+
+    //重置密码
     @RequestMapping("/api/global/resetPwd")
     public ResponseUnit resetPassWord(@RequestBody Map<String,String> map) {
         return teamService.resetPwd(map);
 
     }
+
+    // 用户注册
     @RequestMapping("/api/global/register")
     public ResponseUnit register(@RequestBody Map<String,String> map) {
         return teamService.register(map);
     }
-        @RequestMapping("/api/global/playerService")
+    // 球员-效力记录
+    @RequestMapping("/api/global/playerService")
     public ResponseUnit playerService(@RequestBody Map<String,String> map) {
         String playerId = map.get(("playerId"));
         return new ResponseUnit(200,"", teamService.getPlayerService(playerId));
     }
+
+    // 球队信息
     @RequestMapping("/api/global/teamInfo")
     public ResponseUnit teamSortInfo(@RequestBody Map<String,String> map) {
         String teamId = map.get("teamId");
@@ -116,10 +127,12 @@ public class GlobalController {
         return new ResponseUnit(200,"", teamService.getTeamInfoSort(teamId,season));
     }
 
+    // 新建赛事
     @RequestMapping("/api/manager/createMatch")
     public ResponseUnit createMatch(@RequestBody Map<String,Object> map) {
         int status = mService.insertMatch(map);
         if(status <= 0) return new ResponseUnit(400,"","");
         return new ResponseUnit(200,"", "");
     }
+
 }

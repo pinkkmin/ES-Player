@@ -743,7 +743,7 @@ public class TeamService {
             }
             sqlSession.commit();
         }
-        return null;
+        return new ResponseUnit(200,"","");
     }
     public void createService(Map<String,Object> map,int type){
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
@@ -770,6 +770,7 @@ public class TeamService {
         }
         return new ResponseUnit(200,"签约成功","");
     }
+
     public void test(){
         try (SqlSession sqlSession = MybatisConfig.getSqlSession()) {
             TeamDao teamDao = sqlSession.getMapper(TeamDao.class);
