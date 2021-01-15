@@ -1,6 +1,6 @@
 # ES-Player by cmf&&lss
 ### profit
-se.silence.pink
+[演示地址](se.silence.pink)
 ### API
 
 接口已在ApiPost中建立完毕，路径可再检查，请求参数自行补充。
